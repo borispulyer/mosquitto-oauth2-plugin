@@ -36,9 +36,10 @@ A Dockerfile is included (`v2.0.21.Dockerfile`) that builds Mosquitto together w
 ```yaml
 services:
   mosquitto:
+    image: "mosquitto-oauth2:latest"
     build:
-      context: "."
-      dockerfile: "./v2.0.21.Dockerfile"
+      context: "https://github.com/borispulyer/mosquitto-oauth2-plugin.git#main"
+      dockerfile: "./Dockerfile"
     container_name: "mosquitto"
     restart: "unless-stopped"
     security_opt:
