@@ -22,10 +22,12 @@
 struct oauth2plugin_Options {
 	mosquitto_plugin_id_t* id;				// Plugin ID from MQTT Broker.
 	char* introspection_endpoint;			// Introspection Endpoint URL.
-	char* client_id;						// Client ID.
-	char* client_secret;					// Client Secret.
-	bool verify_tls_certificate;			// Disable TLS verification for testing.
+	char* client_id;						// OAuth2 Client ID.
+	char* client_secret;					// OAuth2 Client Secret.
+	char* mqtt_username;					// If set, plugin will only handle authentication, if the username from the MQTT client matches. Otherwise it will send MOSQ_ERR_PLUGIN_DEFER. Disables the verify_username option. 
+	bool set_username_from_introspection;	// Use the 'username' field from the introspection response.
 	bool verify_username;					// MQTT client username must match the OAuth2 username from the introspection endpoint. 
+	bool verify_tls_certificate;			// Disable TLS verification for testing.
 	long timeout;							// Timeout in seconds.
 };
 

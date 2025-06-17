@@ -60,8 +60,9 @@ int mosquitto_plugin_init(
 	if (!_options) return MOSQ_ERR_NOMEM;
 	// Set default options
 	_options->id = identifier;
+	_options->set_username_from_introspection = true;
 	_options->verify_tls_certificate = true;
-	_options->verify_username = true;
+	_options->verify_username = false;
 	_options->timeout = 5;
 	// Apply options from mosquitto.conf	
 	int apply_options_error = oauth2plugin_applyOptions(_options, options, option_count);
@@ -88,6 +89,8 @@ int mosquitto_plugin_init(
 	mosquitto_log_printf(MOSQ_LOG_INFO,  "[OAuth2 Plugin][I]  - Introspection Endpoint: %s", _options->introspection_endpoint);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client ID: %s", _options->client_id);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client Secret: %zu chars",strlen(_options->client_secret));
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Username: %s", _options->mqtt_username ? _options->mqtt_username : "<None>");
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Set MQTT Username to OAuth2 Username: %s", _options->set_username_from_introspection ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Verify TLS: %s", _options->verify_tls_certificate ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Verify Username: %s", _options->verify_username ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Timeout: %ld seconds", _options->timeout);

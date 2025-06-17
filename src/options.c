@@ -55,6 +55,22 @@ int oauth2plugin_applyOptions(
 		) {
 			options->client_secret = strdup(mosquitto_options[i].value);
 		}
+		// mqtt_username
+		else if (
+			strcmp(mosquitto_options[i].key, "mqtt_username") == 0 
+			&& mosquitto_options[i].value
+		) {
+			options->mqtt_username = strdup(mosquitto_options[i].value);
+			options->verify_username = false;
+		}
+		// set_username_from_introspection
+		else if (
+			strcmp(mosquitto_options[i].key, "set_username_from_introspection") == 0
+			&& mosquitto_options[i].value
+		) {
+			if (strcmp(mosquitto_options[i].value, "false") == 0) options->set_username_from_introspection = false;
+			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->set_username_from_introspection = true;
+		}
 		// verify_tls_certificate
 		else if (
 			strcmp(mosquitto_options[i].key, "verify_tls_certificate") == 0
@@ -67,6 +83,7 @@ int oauth2plugin_applyOptions(
 		else if (
 			strcmp(mosquitto_options[i].key, "verify_username") == 0
 			&& mosquitto_options[i].value
+			&& !options->mqtt_username
 		) {
 			if (strcmp(mosquitto_options[i].value, "false") == 0) options->verify_username = false;
 			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->verify_username = true;
