@@ -49,7 +49,11 @@ int mosquitto_plugin_init(
 	if(!identifier) return MOSQ_ERR_INVAL;
 
 	// Initializie CURL
-	curl_global_init(CURL_GLOBAL_DEFAULT);
+	CURLcode curl_global_init_error = curl_global_init(CURL_GLOBAL_DEFAULT);
+	if (curl_global_init_error) {
+		mosquitto_log_printf(MOSQ_LOG_ERR, "[OAuth2 Plugin][E] Failed to initialize Plugin: Initializiation of CURL failed.");
+		return MOSQ_ERR_UNKNOWN;
+	}
 
 	// Handle plugin_opt_* options from mosquitto.conf file
 	struct oauth2plugin_Options* _options = oauth2plugin_initOptions();

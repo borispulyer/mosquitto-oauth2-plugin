@@ -53,6 +53,11 @@ static int oauth2plugin_getIntrospectionResponse(
 	// Escape client_id and client_secret
 	char* esc_client_id = curl_easy_escape(curl, client_id, 0);
 	char* esc_client_secret = curl_easy_escape(curl, client_secret, 0);
+	if (!esc_client_id
+		|| !esc_client_secret) {
+		curl_easy_cleanup(curl);
+		return MOSQ_ERR_UNKNOWN;
+	}
 
 	// Create POST data for token
 	char* postadata_token_parameter = "token";
@@ -88,7 +93,7 @@ static int oauth2plugin_getIntrospectionResponse(
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Performing introspection endpoint request...");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - URL: %s", introspection_endpoint);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client ID: %s", client_id);
-	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client Secret: %d chars", strlen(client_secret));
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client Secret: %zu chars", strlen(client_secret));
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - POST Data: %s", postdata_token);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - TLS: %s", verify_tls_certificate ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Timeout: %ld", timeout);
@@ -145,7 +150,7 @@ static bool oauth2plugin_isTokenValid(
 		!cJSON_IsBool(cjson_active) 
 		|| !cJSON_IsTrue(cjson_active)
 	) {
-		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Introspection resonse is not {\"active\": true}. Token is not active.");
+		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Introspection response is not {\"active\": true}. Token is not active.");
 		cJSON_Delete(cjson);
 		return false;
 	}
