@@ -34,16 +34,21 @@ plugin_opt_timeout 5
 A Dockerfile is included (`v2.0.21.Dockerfile`) that builds Mosquitto together with this plugin. The following `docker-compose.yml` shows how to compile the image and run the broker:
 
 ```yaml
-version: '3.8'
 services:
   mosquitto:
     build:
-      context: .
-      dockerfile: v2.0.21.Dockerfile
+      context: "."
+      dockerfile: "./v2.0.21.Dockerfile"
+    container_name: "mosquitto"
+    restart: "unless-stopped"
+    security_opt:
+      - "no-new-privileges:true"
     ports:
       - "1883:1883"
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - "./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"
+      - "./logs:/mosquitto/logs:rw"
+      - "./data:/mosquitto/data:rw"
 ```
 
 Place the example `mosquitto.conf` from above next to the compose file and start the broker with:
