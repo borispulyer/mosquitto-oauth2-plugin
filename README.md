@@ -13,7 +13,9 @@ The plugin is configured through `plugin_opt_*` parameters in `mosquitto.conf`.
 | `client_id` | OAuth2 client identifier used for introspection (required) |
 | `client_secret` | OAuth2 client secret (required) |
 | `verify_tls_certificate` | `true` (default) to verify TLS certificates, `false` to disable verification |
-| `verify_username` | `true` (default) to check that the username returned by the endpoint matches the MQTT username |
+| `verify_username` | `false` (default) to check that the username returned by the endpoint matches the MQTT username |
+| `mqtt_username` | Only handle authentication when the MQTT username matches this value. If it doesn't match, the plugin defers authentication. |
+| `set_username_from_introspection` | `true` (default) to replace the MQTT username with the `username` field returned by the introspection endpoint |
 | `timeout` | HTTP request timeout in seconds (default `5`) |
 
 ### Example configuration
@@ -26,12 +28,14 @@ plugin_opt_introspection_endpoint https://auth.example.com/introspect
 plugin_opt_client_id example-client
 plugin_opt_client_secret example-secret
 plugin_opt_verify_tls_certificate true
-plugin_opt_verify_username true
+plugin_opt_verify_username false
+plugin_opt_set_username_from_introspection true
+# plugin_opt_mqtt_username my-mqtt-user
 plugin_opt_timeout 5
 ```
 
 ## Docker compose usage
-A Dockerfile is included (`v2.0.21.Dockerfile`) that builds Mosquitto together with this plugin. The following `docker-compose.yml` shows how to compile the image and run the broker:
+A Dockerfile is included (`Dockerfile`) that builds Mosquitto together with this plugin. The following `docker-compose.yml` shows how to compile the image and run the broker:
 
 ```yaml
 services:
