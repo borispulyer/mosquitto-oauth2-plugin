@@ -132,7 +132,8 @@ static int oauth2plugin_getIntrospectionResponse(
 
 static bool oauth2plugin_isTokenValid(
 	const char* introspection_response,
-	const char* username
+	const char* mqtt_username,
+	char** oauth2_username
 ) {
 	// Validate
 	if (!introspection_response) return false;
@@ -156,18 +157,25 @@ static bool oauth2plugin_isTokenValid(
 	}
 
 	// Step  2: Validate username
-	if (username) {
-		cJSON* cjson_username = cJSON_GetObjectItemCaseSensitive(cjson, "username");
-		if (
-			!cJSON_IsString(cjson_username) 
-			|| !(strcmp(cjson_username->valuestring, username) == 0)
-		) {
+	cJSON* cjson_username = cJSON_GetObjectItemCaseSensitive(cjson, "username");
+	if (
+		oauth2_username
+		&& cJSON_IsString(cjson_username) 
+	) {
+		*oauth2_username = strdup(cjson_username->valuestring);
+	}
+	if (
+		mqtt_username
+		&& (
+			!cJSON_IsString(cjson_username)
+			|| !(strcmp(cjson_username->valuestring, mqtt_username) == 0)
+		)
+	) {
 			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] OAuth2 username does not match username from MQTT client.");
-			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Username: %s", username ? username : "<none>");
+			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Username: %s", mqtt_username ? mqtt_username : "<none>");
 			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Username: %s", cjson_username->valuestring ? cjson_username->valuestring : "<none>");
 			cJSON_Delete(cjson);
 			return false;
-		}
 	}
 	
 	// All checks passed -> return true
@@ -199,7 +207,16 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Password: %s", mqtt_password ? mqtt_password : "<none>");
 
 	// Validate
-	if(mqtt_password == NULL){
+	if (
+		_options->mqtt_username
+		&& !(strcmp(_options->mqtt_username, mqtt_username) == 0)
+	) {
+		mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] MQTT Client Username does not match (MQTT Client ID: %s). Deferring authentication.", mqtt_client_id);
+		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Username: %s", mqtt_username ? mqtt_username : "<none>");
+		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Configured Username: %s", _options->mqtt_username ? _options->mqtt_username : "<none>");
+		return MOSQ_ERR_PLUGIN_DEFER ; // Deferring authentication
+	}
+	if (mqtt_password == NULL) {
 		mosquitto_log_printf(MOSQ_LOG_WARNING, "[OAuth2 Plugin][W] Empty password field -> No token to validate (MQTT Client ID: %s). Aborting authentication, authentication failed.", mqtt_client_id);
 		return MOSQ_ERR_AUTH; // Access denied
 	}
@@ -222,10 +239,26 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 
 	// Parse response from introspection endpoint
 	bool is_token_valid = false;
-	if (_options->verify_username) 
-		is_token_valid = oauth2plugin_isTokenValid(buffer.data, mqtt_username);
-	else
-		is_token_valid = oauth2plugin_isTokenValid(buffer.data, NULL);
+	if (_options->verify_username) {
+		is_token_valid = oauth2plugin_isTokenValid(buffer.data, mqtt_username, NULL);
+	} 
+	else if (_options->set_username_from_introspection) {
+		char* oauth2_username = NULL;
+		is_token_valid = oauth2plugin_isTokenValid(buffer.data, NULL, &oauth2_username);
+		if (
+			is_token_valid
+			&& oauth2_username
+			&& *oauth2_username
+			&& (strlen(oauth2_username) > 0)
+		) {
+			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Setting MQTT Client username to OAuth2 username.");
+			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - New username: %s", oauth2_username ? oauth2_username : "<none>");
+			mosquitto_set_username(data->client, oauth2_username);
+		}
+	}
+	else {
+		is_token_valid = oauth2plugin_isTokenValid(buffer.data, NULL, NULL);
+	}
 	free(buffer.data);
 	
 	// Return

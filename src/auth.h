@@ -45,7 +45,8 @@ static int oauth2plugin_getIntrospectionResponse(
 
 static bool oauth2plugin_isTokenValid(
 	const char* introspection_response,
-	const char* username
+	const char* mqtt_username,
+	char** oauth2_username
 );
 
 int oauth2plugin_callback_mosquittoBasicAuthentication(
