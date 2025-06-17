@@ -2,7 +2,7 @@
 
 This project provides an authentication plugin for the [Eclipse Mosquitto](https://mosquitto.org/) MQTT broker. Clients present an OAuth2 access token in the `password` field of the MQTT `CONNECT` packet. The plugin then verifies the token by calling an OAuth2 *introspection* endpoint. If the endpoint confirms that the token is active (and optionally that the reported username matches the MQTT username) the connection is accepted.
 
-**Note:** At the moment the plugin only handles authentication. It does **not** evaluate ACLs. ACL checks might be handled by Mosquittos built-in acl_file logic.
+**Note:** At the moment the plugin only handles authentication. It does **not** evaluate ACLs. ACL checks might be handled by Mosquittos built-in `acl_file` logic.
 
 ## mosquitto.conf options
 The plugin is configured through `plugin_opt_*` parameters in `mosquitto.conf`.
