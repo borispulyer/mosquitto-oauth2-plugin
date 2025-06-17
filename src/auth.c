@@ -116,7 +116,7 @@ static int oauth2plugin_getIntrospectionResponse(
 
 	// Log
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Received response from introspection endpoint.");
-	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - HTTP Code: %i", http_code);
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - HTTP Code: %ld", http_code);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Data: %s", buffer->data);
 
 	// Validate HTTP status code
@@ -220,7 +220,7 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 		return MOSQ_ERR_AUTH; // Access denied
 	}
 
-	// Parse response from introspection enpoint
+	// Parse response from introspection endpoint
 	bool is_token_valid = false;
 	if (_options->verify_username) 
 		is_token_valid = oauth2plugin_isTokenValid(buffer.data, mqtt_username);

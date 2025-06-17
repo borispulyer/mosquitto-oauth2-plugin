@@ -48,7 +48,7 @@ int mosquitto_plugin_init(
 	// Validation
 	if(!identifier) return MOSQ_ERR_INVAL;
 
-	// Initializie CURL
+	// Initialize CURL
 	CURLcode curl_global_init_error = curl_global_init(CURL_GLOBAL_DEFAULT);
 	if (curl_global_init_error) {
 		mosquitto_log_printf(MOSQ_LOG_ERR, "[OAuth2 Plugin][E] Failed to initialize Plugin: Initializiation of CURL failed.");
@@ -87,7 +87,7 @@ int mosquitto_plugin_init(
 	mosquitto_log_printf(MOSQ_LOG_INFO,  "[OAuth2 Plugin][I] Plugin successfully initialized.");
 	mosquitto_log_printf(MOSQ_LOG_INFO,  "[OAuth2 Plugin][I]  - Introspection Endpoint: %s", _options->introspection_endpoint);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client ID: %s", _options->client_id);
-	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client Secret: %d chars",strlen(_options->client_secret));
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client Secret: %zu chars",strlen(_options->client_secret));
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Verify TLS: %s", _options->verify_tls_certificate ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Verify Username: %s", _options->verify_username ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Timeout: %ld seconds", _options->timeout);
