@@ -16,7 +16,7 @@
 
 
 
-enum oauth2plugin_Options_username_verification {
+enum oauth2plugin_Options_username_validation {
 	NONE,
 	OIDC_USERNAME,
 	OIDC_EMAIL,
@@ -47,9 +47,9 @@ struct oauth2plugin_Options {
 	long 											timeout;								// Server timeout in seconds.
  	char* 											client_id;								// OAuth2 Client ID.
  	char* 											client_secret;							// OAuth2 Client Secret.
- 	enum oauth2plugin_Options_username_verification	username_verification;					// "none", "oidc", "template", "template-regex"
-	char* 											username_verification_template;			// "token-%oidc_username%"
- 	enum oauth2plugin_Options_verification_error	username_verification_error;			// "defer", "deny"
+ 	enum oauth2plugin_Options_username_validation	username_validation;					// "none", "oidc", "template", "template-regex"
+	char* 											username_validation_template;			// "token-%oidc_username%"
+ 	enum oauth2plugin_Options_verification_error	username_validation_error;				// "defer", "deny"
  	enum oauth2plugin_Options_username_replacement 	username_replacement;					// "none", "oidc-username", "template"
  	char* 											username_replacement_template;			// "%username%-%rolescope%"
  	enum oauth2plugin_Options_verification_error 	token_verification_error;				// "defer", "deny"

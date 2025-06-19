@@ -69,31 +69,31 @@ int oauth2plugin_applyOptions(
 		) {
 			options->client_secret = strdup(mosquitto_options[i].value);
 		}
-		// username_verification
+		// username_validation
 		else if (
-			strcmp(mosquitto_options[i].key, "username_verification") == 0 
+			strcmp(mosquitto_options[i].key, "username_validation") == 0 
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "none") == 0 ) options->username_verification = NONE;
-			else if (strcmp(mosquitto_options[i].value, "oidc_username") == 0 ) options->username_verification = OIDC_USERNAME;
-			else if (strcmp(mosquitto_options[i].value, "oidc_email") == 0 ) options->username_verification = OIDC_EMAIL;
-			else if (strcmp(mosquitto_options[i].value, "oidc_sub") == 0 ) options->username_verification = OIDC_SUB;
-			else if (strcmp(mosquitto_options[i].value, "template") == 0 ) options->username_verification = TEMPLATE;
+			if (strcmp(mosquitto_options[i].value, "none") == 0 ) options->username_validation = NONE;
+			else if (strcmp(mosquitto_options[i].value, "oidc_username") == 0 ) options->username_validation = OIDC_USERNAME;
+			else if (strcmp(mosquitto_options[i].value, "oidc_email") == 0 ) options->username_validation = OIDC_EMAIL;
+			else if (strcmp(mosquitto_options[i].value, "oidc_sub") == 0 ) options->username_validation = OIDC_SUB;
+			else if (strcmp(mosquitto_options[i].value, "template") == 0 ) options->username_validation = TEMPLATE;
 		}
-		// username_verification_template
+		// username_validation_template
 		else if (
-			strcmp(mosquitto_options[i].key, "username_verification_template") == 0 
+			strcmp(mosquitto_options[i].key, "username_validation_template") == 0 
 			&& mosquitto_options[i].value
 		) {
-			options->username_verification_template = strdup(mosquitto_options[i].value);
+			options->username_validation_template = strdup(mosquitto_options[i].value);
 		}
-		// username_verification_error
+		// username_validation_error
 		else if (
-			strcmp(mosquitto_options[i].key, "username_verification_error") == 0 
+			strcmp(mosquitto_options[i].key, "username_validation_error") == 0 
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_verification_error = DENY;
-			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_verification_error = DEFER;
+			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_validation_error = DENY;
+			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_validation_error = DEFER;
 		}
 		// username_replacement
 		else if (
@@ -145,7 +145,44 @@ void oauth2plugin_freeOptions(
 	free(options->introspection_endpoint);
 	free(options->client_id);
 	free(options->client_secret);
-	free(options->username_verification_template);
+	free(options->username_validation_template);
 	free(options->username_replacement_template);
 	free(options);
+}
+
+
+const char* oauth2plugin_Options_username_validation_toString(
+	enum oauth2plugin_Options_username_validation value
+) {
+	switch (value) {
+		case NONE: return "none";
+		case OIDC_USERNAME: return "oidc_username";
+		case OIDC_EMAIL: return "oidc_email";
+		case OIDC_SUB: return "oidc_sub";
+		case TEMPLATE: return "template";
+		default: return "unknown";
+	}
+}
+
+const char* oauth2plugin_Options_username_replacement_toString(
+	enum oauth2plugin_Options_username_replacement value
+) {
+	switch (value) {
+		case NONE: return "none";
+		case OIDC_USERNAME: return "oidc_username";
+		case OIDC_EMAIL: return "oidc_email";
+		case OIDC_SUB: return "oidc_sub";
+		case TEMPLATE: return "template";
+		default: return "unknown";
+	}
+}
+
+const char* oauth2plugin_Options_verification_error_toString(
+	enum oauth2plugin_Options_verification_error value
+) {
+	switch (value) {
+		case DENY: return "deny";
+		case DEFER: return "defer";
+		default: return "unknown";
+	}
 }
