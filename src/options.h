@@ -15,19 +15,46 @@
 #include <mosquitto_plugin.h>
 
 
+
+enum oauth2plugin_Options_username_verification {
+	NONE,
+	OIDC_USERNAME,
+	OIDC_EMAIL,
+	OIDC_SUB,
+	TEMPLATE
+}; 
+enum oauth2plugin_Options_username_replacement {
+	NONE,
+	OIDC_USERNAME,
+	OIDC_EMAIL,
+	OIDC_SUB,
+	TEMPLATE
+}; 
+enum oauth2plugin_Options_verification_error {
+	DENY,
+	DEFER
+}; 
+
+
 /**
  * Options structure holding all plugin_opt_* values after parsing mosquitto.conf.
  * Pointer members are heap‑allocated and must be released via oauth2plugin_freeOptions().
  */
-struct oauth2plugin_Options {
-	mosquitto_plugin_id_t* id;				// Plugin ID from MQTT Broker.
-	char* introspection_endpoint;			// Introspection Endpoint URL.
-	char* client_id;						// Client ID.
-	char* client_secret;					// Client Secret.
-	bool verify_tls_certificate;			// Disable TLS verification for testing.
-	bool verify_username;					// MQTT client username must match the OAuth2 username from the introspection endpoint. 
-	long timeout;							// Timeout in seconds.
+struct oauth2plugin_Options {	
+	mosquitto_plugin_id_t* 							id;										// Plugin ID from MQTT Broker.
+	char* 											introsepction_endpoint;					// Introspection Endpoint URL.
+	bool 											tls_verification;						// Enable or disable TLS verification.
+	long 											timeout;								// Server timeout in seconds.
+ 	char* 											client_id;								// OAuth2 Client ID.
+ 	char* 											client_secret;							// OAuth2 Client Secret.
+ 	enum oauth2plugin_Options_username_verification	username_verification;					// "none", "oidc", "template", "template-regex"
+	char* 											username_verification_template;			// "token-%oidc_username%"
+ 	enum oauth2plugin_Options_verification_error	username_verification_error;			// "defer", "deny"
+ 	enum oauth2plugin_Options_username_replacement 	username_replacement;					// "none", "oidc-username", "template"
+ 	char* 											username_replacement_template;			// "%username%-%rolescope%"
+ 	enum oauth2plugin_Options_verification_error 	token_verification_error;				// "defer", "deny"
 };
+
 
 /**
  * Create an Options Object.
