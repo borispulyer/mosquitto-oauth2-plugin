@@ -43,14 +43,14 @@ enum oauth2plugin_Options_verification_error {
 struct oauth2plugin_Options {	
 	mosquitto_plugin_id_t* 							id;										// Plugin ID from MQTT Broker.
 	char* 											introsepction_endpoint;					// Introspection Endpoint URL.
-	bool 											tls_verification;						// Enable or disable TLS verification.
+	bool 											tls_verification;						// Enable TLS verification.
 	long 											timeout;								// Server timeout in seconds.
  	char* 											client_id;								// OAuth2 Client ID.
  	char* 											client_secret;							// OAuth2 Client Secret.
- 	enum oauth2plugin_Options_username_validation	username_validation;					// "none", "oidc", "template", "template-regex"
-	char* 											username_validation_template;			// "token-%oidc_username%"
+ 	enum oauth2plugin_Options_username_validation	username_validation;					// "none", "oidc-username", "oidc-email", "oidc-sub", "template"
+	char* 											username_validation_template;			// "token-%oidc-username%"
  	enum oauth2plugin_Options_verification_error	username_validation_error;				// "defer", "deny"
- 	enum oauth2plugin_Options_username_replacement 	username_replacement;					// "none", "oidc-username", "template"
+ 	enum oauth2plugin_Options_username_replacement 	username_replacement;					// "none", "oidc-username", "oidc-email", "oidc-sub", "template"
  	char* 											username_replacement_template;			// "%username%-%rolescope%"
  	enum oauth2plugin_Options_verification_error 	token_verification_error;				// "defer", "deny"
 };

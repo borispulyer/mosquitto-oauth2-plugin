@@ -72,7 +72,7 @@ int mosquitto_plugin_init(
 	int apply_options_error = oauth2plugin_applyOptions(_options, options, option_count);
 	if (apply_options_error) {
 		if (apply_options_error == MOSQ_ERR_INVAL) 
-			mosquitto_log_printf(MOSQ_LOG_ERR, "[OAuth2 Plugin][E] Failed to initialize Plugin: Options 'introspection_endpoint', 'client_id' and 'client_secret' are mandatory.");
+			mosquitto_log_printf(MOSQ_LOG_ERR, "[OAuth2 Plugin][E] Failed to initialize Plugin: Options 'plugin_opt_introspection_endpoint', 'plugin_opt_client_id' and 'plugin_opt_client_secret' are mandatory.");
 		else
 			mosquitto_log_printf(MOSQ_LOG_ERR, "[OAuth2 Plugin][E] Failed to initialize Plugin.");
 		oauth2plugin_freeOptions(_options);
@@ -88,7 +88,6 @@ int mosquitto_plugin_init(
 	}
 
 	// Finish
-	*userdata = _options; // Return to Mosquitto for mosquitto_plugin_cleanup
 	mosquitto_log_printf(MOSQ_LOG_INFO,  "[OAuth2 Plugin][I] Plugin successfully initialized.");
 	mosquitto_log_printf(MOSQ_LOG_INFO,  "[OAuth2 Plugin][I]  - Introspection Endpoint: %s", _options->introspection_endpoint);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - TLS Verification: %s", _options->tls_verification ? "<Enabled>" : "<Disabled>");
@@ -102,6 +101,7 @@ int mosquitto_plugin_init(
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Replacement Template: %s", _options->username_replacement_template ? _options->username_replacement_template : "<None>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Token Verification Error: <%s>", oauth2plugin_Options_verification_error_toString(_options->token_verification_error));
 	
+	*userdata = _options; // Return to Mosquitto for mosquitto_plugin_cleanup
 	return MOSQ_ERR_SUCCESS;
 }
 

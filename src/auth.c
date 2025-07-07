@@ -231,8 +231,8 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	(void) event;
 	
 	// Init
-	struct oauth2plugin_Options* _options = (struct oauth2plugin_Options*) userdata;
 	struct mosquitto_evt_basic_auth* data = (struct mosquitto_evt_basic_auth*) event_data;
+	struct oauth2plugin_Options* _options = (struct oauth2plugin_Options*) userdata;
 	struct oauth2plugin_CURLBuffer buffer = { .data = NULL, .size = 0 };
 	const char* mqtt_client_id = mosquitto_client_id(data->client);
 	const char* mqtt_username  = mosquitto_client_username(data->client);
