@@ -45,6 +45,72 @@ static bool oauth2plugin_isUsernameValid(
 }
 
 
+static bool oauth2plugin_isUsernameValid_preOAuth2(
+	const enum oauth2plugin_Options_username_validation mode,
+	const char* username,
+	const char* template
+) {
+	switch (mode) {
+		case NONE: 
+		case OIDC_USERNAME: 
+		case OIDC_EMAIL:
+		case OIDC_SUB:
+			return true;
+			break;
+		case TEMPLATE:
+			if (
+				username
+				&& template
+				&& (strcmp(username, template) == 0)
+			) {
+				return true;
+			}
+			return false;
+			break;
+	}
+	return false;
+
+}
+
+
+static bool oauth2plugin_isUsernameValid_postOAuth2(
+	const enum oauth2plugin_Options_username_validation mode,
+	const char* username,
+	const char* template,
+	const char* token
+) {
+	switch (mode) {
+		case NONE: 
+			return true;
+			break;
+		case OIDC_USERNAME: 
+			return;
+			break;
+		case OIDC_EMAIL:
+			return;
+			break;
+		case OIDC_SUB:
+			return;
+			break;
+		case TEMPLATE:
+			if (
+				username
+				&& template
+				&& (strcmp(username, template) == 0)
+			) {
+				return true;
+			}
+			return;
+			break;
+		default: 
+			return false;
+			break;
+	}
+	return false;
+
+}
+
+
 static size_t oauth2plugin_callback_curlWriteFunction(
 	void* contents, 
 	size_t size, 
@@ -73,7 +139,7 @@ static int oauth2plugin_getIntrospectionResponse(
 	const char* client_id,
 	const char* client_secret,
 	const char* token,
-	const bool verify_tls_certificate,
+	const bool tls_certificate,
 	const long timeout,
 	struct oauth2plugin_CURLBuffer* buffer
 ) {
@@ -121,7 +187,7 @@ static int oauth2plugin_getIntrospectionResponse(
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postdata_token);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, oauth2plugin_callback_curlWriteFunction);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, buffer);
-	if (!verify_tls_certificate) {
+	if (!tls_certificate) {
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	}
@@ -133,7 +199,7 @@ static int oauth2plugin_getIntrospectionResponse(
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client ID: %s", client_id);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client Secret: %zu chars", strlen(client_secret));
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - POST Data: %s", postdata_token);
-	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - TLS: %s", verify_tls_certificate ? "<Enabled>" : "<Disabled>");
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - TLS: %s", tls_certificate ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Timeout: %ld", timeout);
 	
 	// Perform HTTP request
@@ -259,13 +325,16 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 		return MOSQ_ERR_AUTH; // Access denied
 	}
 
+	// Validate
+	// isUsernameValid_preOAuth2()
+
 	// Call introspection endpoint
 	int error = oauth2plugin_getIntrospectionResponse(
 		_options->introspection_endpoint,
 		_options->client_id,
 		_options->client_secret,
 		mqtt_password,
-		_options->verify_tls_certificate,
+		_options->tls_certificate,
 		_options->timeout,
 		&buffer
 	);
@@ -275,6 +344,12 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 		return MOSQ_ERR_AUTH; // Access denied
 	}
 
+	// Validate
+	// isUSernameValid_postOAuth2()
+	// isTokenValid()
+
+	
+	
 	// Parse response from introspection endpoint
 	bool is_token_valid = false;
 	if (_options->verify_username) {
