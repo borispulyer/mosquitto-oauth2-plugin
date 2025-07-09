@@ -52,6 +52,7 @@ struct oauth2plugin_Options {
  	enum oauth2plugin_Options_verification_error	username_validation_error;				// "defer", "deny"
  	enum oauth2plugin_Options_username_replacement 	username_replacement;					// "none", "oidc-username", "oidc-email", "oidc-sub", "template"
  	char* 											username_replacement_template;			// "%username%-%rolescope%"
+ 	enum oauth2plugin_Options_verification_error 	username_replacement_error;				// "defer", "deny"
  	enum oauth2plugin_Options_verification_error 	token_verification_error;				// "defer", "deny"
 };
 

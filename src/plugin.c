@@ -66,6 +66,7 @@ int mosquitto_plugin_init(
 	_options->username_validation = NONE;
 	_options->username_validation_error = DENY;
 	_options->username_replacement = NONE;
+	_options->username_replacement_error = DENY;
 	_options->token_verification_error = DENY;
 
 	// Apply options from mosquitto.conf	

@@ -113,6 +113,14 @@ int oauth2plugin_applyOptions(
 		) {
 			options->username_replacement_template = strdup(mosquitto_options[i].value);
 		}
+		// username_replacement_error
+		else if (
+			strcmp(mosquitto_options[i].key, "username_replacement_error") == 0 
+			&& mosquitto_options[i].value
+		) {
+			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_replacement_error = DENY;
+			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_replacement_error = DEFER;
+		}
 		// token_verification_error
 		else if (
 			strcmp(mosquitto_options[i].key, "token_verification_error") == 0 
