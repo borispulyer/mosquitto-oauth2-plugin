@@ -74,11 +74,11 @@ int oauth2plugin_applyOptions(
 			strcmp(mosquitto_options[i].key, "username_validation") == 0 
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "none") == 0 ) options->username_validation = NONE;
-			else if (strcmp(mosquitto_options[i].value, "oidc-username") == 0 ) options->username_validation = OIDC_USERNAME;
-			else if (strcmp(mosquitto_options[i].value, "oidc-email") == 0 ) options->username_validation = OIDC_EMAIL;
-			else if (strcmp(mosquitto_options[i].value, "oidc-sub") == 0 ) options->username_validation = OIDC_SUB;
-			else if (strcmp(mosquitto_options[i].value, "template") == 0 ) options->username_validation = TEMPLATE;
+			if (strcmp(mosquitto_options[i].value, "none") == 0 ) options->username_validation = username_validation_NONE;
+			else if (strcmp(mosquitto_options[i].value, "oidc-username") == 0 ) options->username_validation = username_validation_OIDC_USERNAME;
+			else if (strcmp(mosquitto_options[i].value, "oidc-email") == 0 ) options->username_validation = username_validation_OIDC_EMAIL;
+			else if (strcmp(mosquitto_options[i].value, "oidc-sub") == 0 ) options->username_validation = username_validation_OIDC_SUB;
+			else if (strcmp(mosquitto_options[i].value, "template") == 0 ) options->username_validation = username_validation_TEMPLATE;
 		}
 		// username_validation_template
 		else if (
@@ -92,19 +92,19 @@ int oauth2plugin_applyOptions(
 			strcmp(mosquitto_options[i].key, "username_validation_error") == 0 
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_validation_error = DENY;
-			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_validation_error = DEFER;
+			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_validation_error = verification_error_DENY;
+			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_validation_error = verification_error_DEFER;
 		}
 		// username_replacement
 		else if (
 			strcmp(mosquitto_options[i].key, "username_replacement") == 0 
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "none") == 0 ) options->username_replacement = NONE;
-			else if (strcmp(mosquitto_options[i].value, "oidc-username") == 0 ) options->username_replacement = OIDC_USERNAME;
-			else if (strcmp(mosquitto_options[i].value, "oidc-email") == 0 ) options->username_replacement = OIDC_EMAIL;
-			else if (strcmp(mosquitto_options[i].value, "oidc-sub") == 0 ) options->username_replacement = OIDC_SUB;
-			else if (strcmp(mosquitto_options[i].value, "template") == 0 ) options->username_replacement = TEMPLATE;
+			if (strcmp(mosquitto_options[i].value, "none") == 0 ) options->username_replacement = username_replacement_NONE;
+			else if (strcmp(mosquitto_options[i].value, "oidc-username") == 0 ) options->username_replacement = username_replacement_OIDC_USERNAME;
+			else if (strcmp(mosquitto_options[i].value, "oidc-email") == 0 ) options->username_replacement = username_replacement_OIDC_EMAIL;
+			else if (strcmp(mosquitto_options[i].value, "oidc-sub") == 0 ) options->username_replacement = username_replacement_OIDC_SUB;
+			else if (strcmp(mosquitto_options[i].value, "template") == 0 ) options->username_replacement = username_replacement_TEMPLATE;
 		}
 		// username_replacement_template
 		else if (
@@ -118,16 +118,16 @@ int oauth2plugin_applyOptions(
 			strcmp(mosquitto_options[i].key, "username_replacement_error") == 0 
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_replacement_error = DENY;
-			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_replacement_error = DEFER;
+			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_replacement_error = verification_error_DENY;
+			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_replacement_error = verification_error_DEFER;
 		}
 		// token_verification_error
 		else if (
 			strcmp(mosquitto_options[i].key, "token_verification_error") == 0 
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->token_verification_error = DENY;
-			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->token_verification_error = DEFER;
+			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->token_verification_error = verification_error_DENY;
+			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->token_verification_error = verification_error_DEFER;
 		}
 	}
 
@@ -166,11 +166,11 @@ const char* oauth2plugin_Options_username_validation_toString(
 	enum oauth2plugin_Options_username_validation value
 ) {
 	switch (value) {
-		case NONE: return "none";
-		case OIDC_USERNAME: return "oidc_username";
-		case OIDC_EMAIL: return "oidc_email";
-		case OIDC_SUB: return "oidc_sub";
-		case TEMPLATE: return "template";
+		case username_validation_NONE: return "none";
+		case username_validation_OIDC_USERNAME: return "oidc_username";
+		case username_validation_OIDC_EMAIL: return "oidc_email";
+		case username_validation_OIDC_SUB: return "oidc_sub";
+		case username_validation_TEMPLATE: return "template";
 		default: return "unknown";
 	}
 }
@@ -183,11 +183,11 @@ const char* oauth2plugin_Options_username_replacement_toString(
 	enum oauth2plugin_Options_username_replacement value
 ) {
 	switch (value) {
-		case NONE: return "none";
-		case OIDC_USERNAME: return "oidc_username";
-		case OIDC_EMAIL: return "oidc_email";
-		case OIDC_SUB: return "oidc_sub";
-		case TEMPLATE: return "template";
+		case username_replacement_NONE: return "none";
+		case username_replacement_OIDC_USERNAME: return "oidc_username";
+		case username_replacement_OIDC_EMAIL: return "oidc_email";
+		case username_replacement_OIDC_SUB: return "oidc_sub";
+		case username_replacement_TEMPLATE: return "template";
 		default: return "unknown";
 	}
 }
@@ -201,8 +201,8 @@ const char* oauth2plugin_Options_verification_error_toString(
 	enum oauth2plugin_Options_verification_error value
 ) {
 	switch (value) {
-		case DENY: return "deny";
-		case DEFER: return "defer";
+		case verification_error_DENY: return "deny";
+		case verification_error_DEFER: return "defer";
 		default: return "unknown";
 	}
 }

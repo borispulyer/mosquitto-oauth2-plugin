@@ -27,7 +27,8 @@ struct oauth2plugin_CURLBuffer {
 };
 
 static int oauth2plugin_getMosquittoAuthError(
-	enum oauth2plugin_Options_verification_error error
+	enum oauth2plugin_Options_verification_error error,
+	const struct mosquitto* client
 );
 
 static bool oauth2plugin_isUsernameValid_preOAuth2(
@@ -51,8 +52,7 @@ static bool oauth2plugin_setUsername(
 	struct mosquitto* client,
 	const cJSON* introspection_response,
 	const enum oauth2plugin_Options_username_replacement username_replacement,
-	const char* username_replacement_template,
-
+	const char* username_replacement_template
 );
 
 static size_t oauth2plugin_callback_curlWriteFunction(
@@ -67,7 +67,7 @@ static int oauth2plugin_callIntrospectionEndpoint(
 	const char* client_id,
 	const char* client_secret,
 	const char* token,
-	const bool verify_tls_certificate,
+	const bool tls_verification,
 	const long timeout,
 	struct oauth2plugin_CURLBuffer* buffer
 );

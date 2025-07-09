@@ -17,24 +17,25 @@
 
 
 enum oauth2plugin_Options_username_validation {
-	NONE,
-	OIDC_USERNAME,
-	OIDC_EMAIL,
-	OIDC_SUB,
-	TEMPLATE
-}; 
-enum oauth2plugin_Options_username_replacement {
-	NONE,
-	OIDC_USERNAME,
-	OIDC_EMAIL,
-	OIDC_SUB,
-	TEMPLATE
-}; 
-enum oauth2plugin_Options_verification_error {
-	DENY,
-	DEFER
+	username_validation_NONE,
+	username_validation_OIDC_USERNAME,
+	username_validation_OIDC_EMAIL,
+	username_validation_OIDC_SUB,
+	username_validation_TEMPLATE
 }; 
 
+enum oauth2plugin_Options_username_replacement {
+	username_replacement_NONE,
+	username_replacement_OIDC_USERNAME,
+	username_replacement_OIDC_EMAIL,
+	username_replacement_OIDC_SUB,
+	username_replacement_TEMPLATE
+}; 
+
+enum oauth2plugin_Options_verification_error {
+	verification_error_DENY,
+	verification_error_DEFER
+}; 
 
 /**
  * Options structure holding all plugin_opt_* values after parsing mosquitto.conf.
@@ -43,10 +44,10 @@ enum oauth2plugin_Options_verification_error {
 struct oauth2plugin_Options {	
 	mosquitto_plugin_id_t* 							id;										// Plugin ID from MQTT Broker.
 	char* 											introspection_endpoint;					// Introspection Endpoint URL.
+	char* 											client_id;								// OAuth2 Client ID.
+	char* 											client_secret;							// OAuth2 Client Secret.
 	bool 											tls_verification;						// Enable TLS verification.
 	long 											timeout;								// Server timeout in seconds.
- 	char* 											client_id;								// OAuth2 Client ID.
- 	char* 											client_secret;							// OAuth2 Client Secret.
  	enum oauth2plugin_Options_username_validation	username_validation;					// "none", "oidc-username", "oidc-email", "oidc-sub", "template"
 	char* 											username_validation_template;			// "token-%oidc-username%"
  	enum oauth2plugin_Options_verification_error	username_validation_error;				// "defer", "deny"
@@ -78,6 +79,18 @@ int oauth2plugin_applyOptions(
  */
 void oauth2plugin_freeOptions(
 	struct oauth2plugin_Options *options
+);
+
+const char* oauth2plugin_Options_username_validation_toString(
+	enum oauth2plugin_Options_username_validation value
+);
+
+const char* oauth2plugin_Options_username_replacement_toString(
+	enum oauth2plugin_Options_username_replacement value
+);
+
+const char* oauth2plugin_Options_verification_error_toString(
+	enum oauth2plugin_Options_verification_error value
 );
 
 #endif // OAUTH2PLUGIN_OPTIONS_H
