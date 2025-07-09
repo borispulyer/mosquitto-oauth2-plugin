@@ -7,7 +7,9 @@
 #include "auth.h"
 
 
-static int oauth2plugin_getMosquittoAuthError(enum oauth2plugin_Options_verification_error error) {
+static int oauth2plugin_getMosquittoAuthError(
+	enum oauth2plugin_Options_verification_error error
+) {
 	switch (error) {
 		case DENY:
 			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. ACCESS DENIED. (MQTT Client ID: %s).", mqtt_client_id);
@@ -44,7 +46,7 @@ static bool oauth2plugin_isUsernameValid_preOAuth2(
 				return true;
 			
 			// Username is empty
-			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Username from MQTT client is etmpty.");
+			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Username from MQTT client is empty.");
 			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Username: %s", username ? username : "<none>");
 			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Verification: <%s>", oauth2plugin_Options_username_validation_toString(username_validation));
 			return false;
@@ -168,7 +170,9 @@ static bool oauth2plugin_isUsernameValid_postOAuth2(
 }
 
 
-static bool oauth2plugin_isTokenActive(const cJSON* introspection_response) {
+static bool oauth2plugin_isTokenActive(
+	const cJSON* introspection_response
+) {
 	// Validate
 	if (!introspection_response) return false;
 
@@ -263,8 +267,6 @@ static bool oauth2plugin_setUsername(
 }
 
 
-
-
 static size_t oauth2plugin_callback_curlWriteFunction(
 	void* contents, 
 	size_t size, 
@@ -288,12 +290,12 @@ static size_t oauth2plugin_callback_curlWriteFunction(
 }
 
 
-static int oauth2plugin_getIntrospectionResponse(
+static int oauth2plugin_callIntrospectionEndpoint(
 	const char* introspection_endpoint,
 	const char* client_id,
 	const char* client_secret,
 	const char* token,
-	const bool tls_certificate,
+	const bool tls_verification,
 	const long timeout,
 	struct oauth2plugin_CURLBuffer* buffer
 ) {
@@ -341,7 +343,7 @@ static int oauth2plugin_getIntrospectionResponse(
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postdata_token);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, oauth2plugin_callback_curlWriteFunction);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, buffer);
-	if (!tls_certificate) {
+	if (!tls_verification) {
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	}
@@ -353,7 +355,7 @@ static int oauth2plugin_getIntrospectionResponse(
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client ID: %s", client_id);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client Secret: %zu chars", strlen(client_secret));
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - POST Data: %s", postdata_token);
-	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - TLS: %s", tls_certificate ? "<Enabled>" : "<Disabled>");
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - TLS: %s", tls_verification ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Timeout: %ld", timeout);
 	
 	// Perform HTTP request
@@ -431,12 +433,12 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 
 	// Step 2: Performing OAuth2 request
 	// Call introspection endpoint
-	int error = oauth2plugin_getIntrospectionResponse(
+	int error = oauth2plugin_callIntrospectionEndpoint(
 		_options->introspection_endpoint,
 		_options->client_id,
 		_options->client_secret,
 		mqtt_password,
-		_options->tls_certificate,
+		_options->tls_verification,
 		_options->timeout,
 		&buffer
 	);
@@ -464,7 +466,7 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	if (
 		!oauth2plugin_isTokenActive(cjson)
 	) {
-		mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Token is not active (MQTT Client ID: %s).", mqtt_client_id);;
+		mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Token is not active (MQTT Client ID: %s).", mqtt_client_id);
 		cJSON_Delete(cjson);
 		free(buffer.data);
 		return oauth2plugin_getMosquittoAuthError(_options->token_verification_error);

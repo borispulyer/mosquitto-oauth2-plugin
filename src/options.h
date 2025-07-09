@@ -42,7 +42,7 @@ enum oauth2plugin_Options_verification_error {
  */
 struct oauth2plugin_Options {	
 	mosquitto_plugin_id_t* 							id;										// Plugin ID from MQTT Broker.
-	char* 											introsepction_endpoint;					// Introspection Endpoint URL.
+	char* 											introspection_endpoint;					// Introspection Endpoint URL.
 	bool 											tls_verification;						// Enable TLS verification.
 	long 											timeout;								// Server timeout in seconds.
  	char* 											client_id;								// OAuth2 Client ID.
