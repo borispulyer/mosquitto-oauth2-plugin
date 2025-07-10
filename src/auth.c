@@ -6,6 +6,86 @@
 
 #include "auth.h"
 
+// Replace all occurrences of a substring with another string.
+static char* oauth2plugin_replace_all(
+        const char* original,
+        const char* substr,
+        const char* replacement
+) {
+        if (!original || !substr || !replacement) return NULL;
+
+        const size_t substr_len = strlen(substr);
+        if (substr_len == 0) return strdup(original);
+
+        const size_t replacement_len = strlen(replacement);
+
+        // Count occurrences
+        size_t count = 0;
+        const char* tmp = original;
+        while ((tmp = strstr(tmp, substr)) != NULL) {
+                count++;
+                tmp += substr_len;
+        }
+
+        if (count == 0) return strdup(original);
+
+        const size_t new_len = strlen(original) +
+                (replacement_len > substr_len ? (replacement_len - substr_len) * count : 0) + 1;
+        char* result = malloc(new_len);
+        if (!result) return NULL;
+
+        const char* src = original;
+        char* dst = result;
+        while ((tmp = strstr(src, substr)) != NULL) {
+                size_t n = tmp - src;
+                memcpy(dst, src, n);
+                dst += n;
+                memcpy(dst, replacement, replacement_len);
+                dst += replacement_len;
+                src = tmp + substr_len;
+        }
+        strcpy(dst, src);
+
+        return result;
+}
+
+// Expand username template using values from the introspection response.
+static char* oauth2plugin_expand_username_template(
+        const char* template,
+        const cJSON* introspection_response
+) {
+        if (!template) return NULL;
+
+        char* result = strdup(template);
+        if (!result) return NULL;
+
+        struct { const char* placeholder; const char* field; } map[] = {
+                {"%oidc-username%", "username"},
+                {"%oidc-email%", "email"},
+                {"%oidc-sub%", "sub"}
+        };
+
+        for (size_t i = 0; i < sizeof(map)/sizeof(map[0]); i++) {
+                while (strstr(result, map[i].placeholder)) {
+                        if (!introspection_response) {
+                                free(result);
+                                return NULL;
+                        }
+                        cJSON* item = cJSON_GetObjectItemCaseSensitive(introspection_response, map[i].field);
+                        if (!cJSON_IsString(item)) {
+                                free(result);
+                                return NULL;
+                        }
+                        char* replaced = oauth2plugin_replace_all(result, map[i].placeholder, item->valuestring);
+                        free(result);
+                        if (!replaced) return NULL;
+                        result = replaced;
+                }
+        }
+
+        return result;
+}
+
 
 static int oauth2plugin_getMosquittoAuthError(
 	enum oauth2plugin_Options_verification_error error,
@@ -55,21 +135,31 @@ static bool oauth2plugin_isUsernameValid_preOAuth2(
 			break;
 
 		// Username must match template from config file
-		case username_validation_TEMPLATE:
-			// Validate
-			if (
-				username
-				&& username_validation_template
-				&& (strcmp(username, username_validation_template) == 0)
-			) return true;
-			
-			// Usernames do not match
-			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Username from MQTT client does not match username template in config file.");
-			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Username: %s", username ? username : "<none>");
-			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Verification: <%s>", oauth2plugin_Options_username_validation_toString(username_validation));
-			mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Verification Template: %s", username_validation_template ? username_validation_template : "<None>");
-			return false;
-			break;
+                case username_validation_TEMPLATE:
+                        // If template has no placeholders, compare directly
+                        if (
+                                username_validation_template &&
+                                strstr(username_validation_template, "%oidc-") == NULL
+                        ) {
+                                if (
+                                        username &&
+                                        (strcmp(username, username_validation_template) == 0)
+                                ) return true;
+
+                                mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Username from MQTT client does not match username template in config file.");
+                                mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Username: %s", username ? username : "<none>");
+                                mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Verification Template: %s", username_validation_template);
+                                return false;
+                        }
+
+                        // Template contains placeholders, skip validation until post OAuth2
+                        if (username != NULL)
+                                return true;
+
+                        mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Username from MQTT client is empty.");
+                        mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Username: <none>");
+                        return false;
+                        break;
 
 		default: 
 			return false;
@@ -159,9 +249,27 @@ static bool oauth2plugin_isUsernameValid_postOAuth2(
 			break;
 
 		// Username must match template from config file
-		case username_validation_TEMPLATE:
-			return true;
-			break;
+                case username_validation_TEMPLATE:
+                        if (!username || !username_validation_template)
+                                return false;
+
+                        {
+                                char* expected = oauth2plugin_expand_username_template(
+                                        username_validation_template,
+                                        introspection_response
+                                );
+                                if (!expected) return false;
+
+                                bool ok = (strcmp(username, expected) == 0);
+                                if (!ok) {
+                                        mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Username from MQTT client does not match expanded template.");
+                                        mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client Username: %s", username);
+                                        mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Expanded Template: %s", expected);
+                                }
+                                free(expected);
+                                return ok;
+                        }
+                        break;
 		
 		default: 
 			return false;
