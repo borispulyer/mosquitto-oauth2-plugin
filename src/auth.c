@@ -8,40 +8,46 @@
 
 
 // Expand username template using values from the introspection response.
-static char* oauth2plugin_expand_username_template(
+static char* oauth2plugin_replaceTemplatePlaceholders(
 		const char* template,
 		const cJSON* introspection_response
 ) {
-		if (!template) return NULL;
+	// Validate
+	if (!template) return NULL;
 
-		char* result = strdup(template);
-		if (!result) return NULL;
+	// Init
+	char* result = strdup(template);
+	if (!result) return NULL;
 
-		struct { const char* placeholder; const char* field; } map[] = {
-				{"%oidc-username%", "username"},
-				{"%oidc-email%", "email"},
-				{"%oidc-sub%", "sub"}
-		};
+	// Define placeholders
+	struct { 
+		const char* placeholder; 
+		const char* oidc_key; 
+	} placeholders[] = {
+		{"%oidc-username%", "username"},
+		{"%oidc-email%", "email"},
+		{"%oidc-sub%", "sub"}
+	};
 
-		for (size_t i = 0; i < sizeof(map)/sizeof(map[0]); i++) {
-				while (strstr(result, map[i].placeholder)) {
-						if (!introspection_response) {
-								free(result);
-								return NULL;
-						}
-						cJSON* item = cJSON_GetObjectItemCaseSensitive(introspection_response, map[i].field);
-						if (!cJSON_IsString(item)) {
-								free(result);
-								return NULL;
-						}
-						char* replaced = oauth2plugin_strReplaceAll(result, map[i].placeholder, item->valuestring);
-						free(result);
-						if (!replaced) return NULL;
-						result = replaced;
-				}
+	for (size_t i = 0; i < sizeof(placeholders)/sizeof(placeholders[0]); i++) {
+		while (strstr(result, placeholders[i].placeholder)) {
+			if (!introspection_response) {
+				free(result);
+				return NULL;
+			}
+			cJSON* item = cJSON_GetObjectItemCaseSensitive(introspection_response, placeholders[i].oidc_key);
+			if (!cJSON_IsString(item)) {
+				free(result);
+				return NULL;
+			}
+			char* replaced = oauth2plugin_strReplaceAll(result, placeholders[i].placeholder, item->valuestring);
+			free(result);
+			if (!replaced) return NULL;
+			result = replaced;
 		}
+	}
 
-		return result;
+	return result;
 }
 
 
@@ -212,7 +218,7 @@ static bool oauth2plugin_isUsernameValid_postOAuth2(
 								return false;
 
 						{
-								char* expected = oauth2plugin_expand_username_template(
+								char* expected = oauth2plugin_replaceTemplatePlaceholders(
 										username_validation_template,
 										introspection_response
 								);
@@ -535,6 +541,8 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 		free(buffer.data);
 		return oauth2plugin_getMosquittoAuthError(_options->token_verification_error, data->client);
 	}
+
+	// Extract JSON fields an create oauth2plugin_strReplacementMap
 	
 	// Step 3: Post OAuth2 request
 	// Validate if token is active
