@@ -32,15 +32,11 @@ static int oauth2plugin_getMosquittoAuthError(
 	const struct mosquitto* client
 );
 
-static bool oauth2plugin_isUsernameValid_preOAuth2(
+static bool oauth2plugin_isUsernameValid(
 	const char* username,
-	const char* username_validation_template
-);
-
-static bool oauth2plugin_isUsernameValid_postOAuth2(
-	const char* username,
-	const cJSON* introspection_response,
-	const char* username_validation_template
+	const char* template,
+	const struct oauth2plugin_strReplacementMap* replacement_map,
+	size_t replacement_map_count
 );
 
 static bool oauth2plugin_isTokenActive(
@@ -49,9 +45,9 @@ static bool oauth2plugin_isTokenActive(
 
 static bool oauth2plugin_setUsername(
 	struct mosquitto* client,
-	const cJSON* introspection_response,
-	const enum oauth2plugin_Options_username_replacement username_replacement,
-	const char* username_replacement_template
+	const char* template,
+	const struct oauth2plugin_strReplacementMap* replacement_map,
+	size_t replacement_map_count
 );
 
 static size_t oauth2plugin_callback_curlWriteFunction(

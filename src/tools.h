@@ -29,4 +29,9 @@ static char* oauth2plugin_strReplaceMap(
 	size_t map_count
 );
 
+static void oauth2plugin_freeReplacementMap(
+	struct oauth2plugin_strReplacementMap* map,
+	size_t map_count
+);
+
 #endif // OAUTH2PLUGIN_TOOLS_H

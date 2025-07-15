@@ -49,8 +49,8 @@ static bool oauth2plugin_isUsernameValid(
 	if (strstr(template, "%%") != NULL) {
 		// Username template contains placehoders -> replace
 		if (!replacement_map
-			|| replacement_map_count == 0) return NULL;
-		char* username_comparison = oauth2plugin_strReplaceMap(
+			|| replacement_map_count == 0) return true;
+		username_comparison = oauth2plugin_strReplaceMap(
 			template,
 			replacement_map,
 			replacement_map_count
@@ -58,20 +58,23 @@ static bool oauth2plugin_isUsernameValid(
 		if (username_comparison == NULL) return false;
 	} else {
 		// Username template does not contain any placehoders
-		username_comparison = template;
+		username_comparison = strdup(template);
 	}
 	
 	// Compare username with template
 	if (strcmp(username, username_comparison) == 0) {
+		free(username_comparison);
 		return true;
 	} else {
 		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Username from MQTT client does not match username template in config file.");
 		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT client username: %s", username ? username : "<none>");
 		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username verification template: %s", template);
 		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username comparison string: %s", username_comparison);
+		free(username_comparison);
 		return false;
 	}
 	
+	free(username_comparison);
 	return false;
 }
 
@@ -110,7 +113,7 @@ static bool oauth2plugin_setUsername(
 		// Username template contains placehoders -> replace
 		if (!replacement_map
 			|| replacement_map_count == 0) return false;
-		char* username = oauth2plugin_strReplaceMap(
+		username = oauth2plugin_strReplaceMap(
 			template,
 			replacement_map,
 			replacement_map_count
@@ -118,7 +121,7 @@ static bool oauth2plugin_setUsername(
 		if (username == NULL) return false;
 	} else {
 		// Username template does not contain any placehoders
-		username = template;
+		username = strdup(template);
 	}
 
 	// Replace username
@@ -127,9 +130,11 @@ static bool oauth2plugin_setUsername(
 		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username replacement template: %s", template ? template : "<none>");
 		mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - New username: %s", username ? username : "<none>");
 		mosquitto_set_username(client, username);
+		free(username);
 		return true;
 	}
 
+	free(username);
 	return false;
 
 }
@@ -287,12 +292,12 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	// Validate username
 	if (
 		_options->username_validation
-		&& oauth2plugin_isUsernameValid(
+		&& !oauth2plugin_isUsernameValid(
 			mqtt_username,
-			_options->username_validation_template
+			_options->username_validation_template,
 			NULL,
 			0
-		) === false
+		)
 	) {
 		mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Username from MQTT client is not valid (MQTT Client ID: %s).", mqtt_client_id);
 		return oauth2plugin_getMosquittoAuthError(_options->username_validation_error, data->client);
@@ -359,6 +364,7 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 		!oauth2plugin_isTokenActive(cjson)
 	) {
 		mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Token is not active (MQTT Client ID: %s).", mqtt_client_id);
+		oauth2plugin_freeReplacementMap(replacement_map, replacement_map_count);
 		cJSON_Delete(cjson);
 		free(buffer.data);
 		return oauth2plugin_getMosquittoAuthError(_options->token_verification_error, data->client);
@@ -366,14 +372,16 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	
 	// Validate username 
 	if (
-		!oauth2plugin_isUsernameValid(
+		_options->username_validation
+		&& !oauth2plugin_isUsernameValid(
 			mqtt_username,
-			_options->username_validation_template
+			_options->username_validation_template,
 			replacement_map,
 			replacement_map_count
 		)
 	) {
 		mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Username from MQTT client is not valid (MQTT Client ID: %s).", mqtt_client_id);
+		oauth2plugin_freeReplacementMap(replacement_map, replacement_map_count);
 		cJSON_Delete(cjson);
 		free(buffer.data);
 		return oauth2plugin_getMosquittoAuthError(_options->username_validation_error, data->client);
@@ -381,15 +389,16 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	
 	// Change username
 	if (
-		!oauth2plugin_setUsername(
+		_options->username_replacement
+		&& !oauth2plugin_setUsername(
 			data->client,
-			cjson,
-			_options->username_replacement,
-			_options->username_replacement_template
-
+			_options->username_replacement_template,
+			replacement_map,
+			replacement_map_count
 		)
 	) {
 		mosquitto_log_printf(MOSQ_LOG_WARNING, "[OAuth2 Plugin][W] Error setting username (MQTT Client ID: %s).", mqtt_client_id);
+		oauth2plugin_freeReplacementMap(replacement_map, replacement_map_count);
 		cJSON_Delete(cjson);
 		free(buffer.data);
 		return oauth2plugin_getMosquittoAuthError(_options->username_replacement_error, data->client);
@@ -397,6 +406,7 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	}
 
 	// Free objects
+	oauth2plugin_freeReplacementMap(replacement_map, replacement_map_count);
 	cJSON_Delete(cjson);
 	free(buffer.data);
 	

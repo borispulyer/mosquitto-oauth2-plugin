@@ -73,14 +73,6 @@ void oauth2plugin_freeOptions(
 	struct oauth2plugin_Options *options
 );
 
-const char* oauth2plugin_Options_username_validation_toString(
-	enum oauth2plugin_Options_username_validation value
-);
-
-const char* oauth2plugin_Options_username_replacement_toString(
-	enum oauth2plugin_Options_username_replacement value
-);
-
 const char* oauth2plugin_Options_verification_error_toString(
 	enum oauth2plugin_Options_verification_error value
 );

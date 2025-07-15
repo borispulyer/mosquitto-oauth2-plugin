@@ -88,3 +88,15 @@ static char* oauth2plugin_strReplaceMap(
 	// Return
 	return current_haystack;
 }
+
+static void oauth2plugin_freeReplacementMap(
+	struct oauth2plugin_strReplacementMap* map,
+	size_t map_count
+) {
+	if (!map || map_count == 0) return;
+
+	for (size_t i = 0; i < map_count; i++) {
+		free((void*) map[i].replacement);
+		map[i].replacement = NULL;
+	}
+}
