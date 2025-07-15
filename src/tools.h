@@ -1,5 +1,5 @@
 /**
- * tools.c
+ * tools.h
  * 
  * General helper functions
  */

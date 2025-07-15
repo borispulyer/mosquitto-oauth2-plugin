@@ -41,15 +41,6 @@ struct oauth2plugin_Options {
 };
 
 
-struct { 
-	const char* placeholder; 
-	const char* oidc_key; 
-} oauth2plugin_oidc_template_placeholders[] = {
-	{"%%oidc-username%%", "username"},
-	{"%%oidc-email%%", "email"},
-	{"%%oidc-sub%%", "sub"}
-};
-
 /**
  * Create an Options Object.
  */
@@ -70,8 +61,9 @@ int oauth2plugin_applyOptions(
  * Free all heap allocations inside struct Options and the object itself.
  */
 void oauth2plugin_freeOptions(
-	struct oauth2plugin_Options *options
+	struct oauth2plugin_Options* options
 );
+
 
 const char* oauth2plugin_Options_verification_error_toString(
 	enum oauth2plugin_Options_verification_error value

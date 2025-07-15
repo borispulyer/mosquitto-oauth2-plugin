@@ -279,6 +279,17 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	const char* mqtt_username  = mosquitto_client_username(data->client);
 	const char* mqtt_password = data->password;
 
+	
+
+	struct { 
+		const char* placeholder; 
+		const char* oidc_key; 
+	} oauth2plugin_oidc_template_placeholders[] = {
+		{"%%oidc-username%%", "username"},
+		{"%%oidc-email%%", "email"},
+		{"%%oidc-sub%%", "sub"}
+	};
+
 	// Log
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Starting client authentication.");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client ID: %s", mqtt_client_id);
