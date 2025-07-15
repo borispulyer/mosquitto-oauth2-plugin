@@ -64,7 +64,7 @@ static char* oauth2plugin_strReplaceMap(
 	) return NULL;
 
 	// Init
-	char *current_haystack = strdup(haystack);
+	char* current_haystack = strdup(haystack);
 	if (!current_haystack) return NULL;
 
 	// Iterate over items of map

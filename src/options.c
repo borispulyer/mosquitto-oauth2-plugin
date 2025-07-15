@@ -71,14 +71,11 @@ int oauth2plugin_applyOptions(
 		}
 		// username_validation
 		else if (
-			strcmp(mosquitto_options[i].key, "username_validation") == 0 
+			strcmp(mosquitto_options[i].key, "username_validation") == 0
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "none") == 0 ) options->username_validation = username_validation_NONE;
-			else if (strcmp(mosquitto_options[i].value, "oidc-username") == 0 ) options->username_validation = username_validation_OIDC_USERNAME;
-			else if (strcmp(mosquitto_options[i].value, "oidc-email") == 0 ) options->username_validation = username_validation_OIDC_EMAIL;
-			else if (strcmp(mosquitto_options[i].value, "oidc-sub") == 0 ) options->username_validation = username_validation_OIDC_SUB;
-			else if (strcmp(mosquitto_options[i].value, "template") == 0 ) options->username_validation = username_validation_TEMPLATE;
+			if (strcmp(mosquitto_options[i].value, "false") == 0) options->username_validation = false;
+			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->username_validation = true;
 		}
 		// username_validation_template
 		else if (
@@ -97,14 +94,11 @@ int oauth2plugin_applyOptions(
 		}
 		// username_replacement
 		else if (
-			strcmp(mosquitto_options[i].key, "username_replacement") == 0 
+			strcmp(mosquitto_options[i].key, "username_replacement") == 0
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "none") == 0 ) options->username_replacement = username_replacement_NONE;
-			else if (strcmp(mosquitto_options[i].value, "oidc-username") == 0 ) options->username_replacement = username_replacement_OIDC_USERNAME;
-			else if (strcmp(mosquitto_options[i].value, "oidc-email") == 0 ) options->username_replacement = username_replacement_OIDC_EMAIL;
-			else if (strcmp(mosquitto_options[i].value, "oidc-sub") == 0 ) options->username_replacement = username_replacement_OIDC_SUB;
-			else if (strcmp(mosquitto_options[i].value, "template") == 0 ) options->username_replacement = username_replacement_TEMPLATE;
+			if (strcmp(mosquitto_options[i].value, "false") == 0) options->username_replacement = false;
+			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->username_replacement = true;
 		}
 		// username_replacement_template
 		else if (
@@ -156,40 +150,6 @@ void oauth2plugin_freeOptions(
 	free(options->username_validation_template);
 	free(options->username_replacement_template);
 	free(options);
-}
-
-
-/**
- * Convert enum oauth2plugin_Options_username_validation to string for logging
- */
-const char* oauth2plugin_Options_username_validation_toString(
-	enum oauth2plugin_Options_username_validation value
-) {
-	switch (value) {
-		case username_validation_NONE: return "none";
-		case username_validation_OIDC_USERNAME: return "oidc_username";
-		case username_validation_OIDC_EMAIL: return "oidc_email";
-		case username_validation_OIDC_SUB: return "oidc_sub";
-		case username_validation_TEMPLATE: return "template";
-		default: return "unknown";
-	}
-}
-
-
-/**
- * Convert enum oauth2plugin_Options_username_replacement to string for logging
- */
-const char* oauth2plugin_Options_username_replacement_toString(
-	enum oauth2plugin_Options_username_replacement value
-) {
-	switch (value) {
-		case username_replacement_NONE: return "none";
-		case username_replacement_OIDC_USERNAME: return "oidc_username";
-		case username_replacement_OIDC_EMAIL: return "oidc_email";
-		case username_replacement_OIDC_SUB: return "oidc_sub";
-		case username_replacement_TEMPLATE: return "template";
-		default: return "unknown";
-	}
 }
 
 

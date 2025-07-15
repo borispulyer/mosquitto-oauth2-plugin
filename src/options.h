@@ -15,23 +15,6 @@
 #include <mosquitto_plugin.h>
 
 
-
-enum oauth2plugin_Options_username_validation {
-	username_validation_NONE,
-	username_validation_OIDC_USERNAME,
-	username_validation_OIDC_EMAIL,
-	username_validation_OIDC_SUB,
-	username_validation_TEMPLATE
-}; 
-
-enum oauth2plugin_Options_username_replacement {
-	username_replacement_NONE,
-	username_replacement_OIDC_USERNAME,
-	username_replacement_OIDC_EMAIL,
-	username_replacement_OIDC_SUB,
-	username_replacement_TEMPLATE
-}; 
-
 enum oauth2plugin_Options_verification_error {
 	verification_error_DENY,
 	verification_error_DEFER
@@ -48,15 +31,24 @@ struct oauth2plugin_Options {
 	char* 											client_secret;							// OAuth2 Client Secret.
 	bool 											tls_verification;						// Enable TLS verification.
 	long 											timeout;								// Server timeout in seconds.
- 	enum oauth2plugin_Options_username_validation	username_validation;					// "none", "oidc-username", "oidc-email", "oidc-sub", "template"
+ 	bool											username_validation;					// Validate username to match username_validation_template
 	char* 											username_validation_template;			// "token-%oidc-username%"
  	enum oauth2plugin_Options_verification_error	username_validation_error;				// "defer", "deny"
- 	enum oauth2plugin_Options_username_replacement 	username_replacement;					// "none", "oidc-username", "oidc-email", "oidc-sub", "template"
+ 	bool										 	username_replacement;					// Replace username after successful authentification
  	char* 											username_replacement_template;			// "%username%-%rolescope%"
  	enum oauth2plugin_Options_verification_error 	username_replacement_error;				// "defer", "deny"
  	enum oauth2plugin_Options_verification_error 	token_verification_error;				// "defer", "deny"
 };
 
+
+struct { 
+	const char* placeholder; 
+	const char* oidc_key; 
+} oauth2plugin_oidc_template_placeholders[] = {
+	{"%%oidc-username%%", "username"},
+	{"%%oidc-email%%", "email"},
+	{"%%oidc-sub%%", "sub"}
+};
 
 /**
  * Create an Options Object.

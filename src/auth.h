@@ -34,14 +34,12 @@ static int oauth2plugin_getMosquittoAuthError(
 
 static bool oauth2plugin_isUsernameValid_preOAuth2(
 	const char* username,
-	const enum oauth2plugin_Options_username_validation username_validation,
 	const char* username_validation_template
 );
 
 static bool oauth2plugin_isUsernameValid_postOAuth2(
 	const char* username,
 	const cJSON* introspection_response,
-	const enum oauth2plugin_Options_username_validation username_validation,
 	const char* username_validation_template
 );
 
