@@ -23,13 +23,13 @@ static char* oauth2plugin_strReplaceAll(
 	const char* replacement
 );
 
-static char* oauth2plugin_strReplaceMap(
+char* oauth2plugin_strReplaceMap(
 	const char* haystack,
 	const struct oauth2plugin_strReplacementMap* map,
 	size_t map_count
 );
 
-static void oauth2plugin_freeReplacementMap(
+void oauth2plugin_freeReplacementMap(
 	struct oauth2plugin_strReplacementMap* map,
 	size_t map_count
 );

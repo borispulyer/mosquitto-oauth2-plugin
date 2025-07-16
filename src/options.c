@@ -7,6 +7,16 @@
 #include "options.h"
 
 
+const struct oauth2plugin_oidc_placeholder oauth2plugin_oidc_template_placeholders[] = {
+	{"%%oidc-username%%", "username"},
+	{"%%oidc-email%%", "email"},
+	{"%%oidc-sub%%", "sub"}
+};
+const size_t oauth2plugin_oidc_template_placeholders_count =
+	sizeof(oauth2plugin_oidc_template_placeholders) /
+	sizeof(oauth2plugin_oidc_template_placeholders[0]);
+
+
 /**
  * Create an Options Object
  */

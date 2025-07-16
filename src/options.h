@@ -41,6 +41,14 @@ struct oauth2plugin_Options {
 };
 
 
+struct oauth2plugin_oidc_placeholder {
+	const char* placeholder;
+	const char* oidc_key;
+};
+
+extern const struct oauth2plugin_oidc_placeholder oauth2plugin_oidc_template_placeholders[];
+extern const size_t oauth2plugin_oidc_template_placeholders_count;
+
 /**
  * Create an Options Object.
  */

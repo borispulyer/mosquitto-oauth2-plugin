@@ -51,7 +51,7 @@ static char* oauth2plugin_strReplaceAll(
 }
 
 
-static char* oauth2plugin_strReplaceMap(
+char* oauth2plugin_strReplaceMap(
 	const char* haystack,
 	const struct oauth2plugin_strReplacementMap* map,
 	size_t map_count
@@ -90,7 +90,7 @@ static char* oauth2plugin_strReplaceMap(
 }
 
 
-static void oauth2plugin_freeReplacementMap(
+void oauth2plugin_freeReplacementMap(
 	struct oauth2plugin_strReplacementMap* map,
 	size_t map_count
 ) {

@@ -14,11 +14,11 @@ static int oauth2plugin_getMosquittoAuthError(
 	const char* mqtt_client_id = mosquitto_client_id(client);
 	switch (error) {
 		case verification_error_DENY:
-			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. ACCESS DENIED. (MQTT Client ID: %s).", mqtt_client_id);
+			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. ACCESS DENIED (MQTT Client ID: %s).", mqtt_client_id);
 			return MOSQ_ERR_AUTH; // Access denied
 			break;
 		case verification_error_DEFER:
-			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. Deferring authentication (MQTT Client ID: %s).", mqtt_client_id);
+			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. DEFERRING AUTHENTICATION (MQTT Client ID: %s).", mqtt_client_id);
 			return MOSQ_ERR_PLUGIN_DEFER; // Deferring authentication
 			break;
 	}
@@ -44,10 +44,10 @@ static bool oauth2plugin_isUsernameValid(
 		return false;
 	}
 	
-	// Replace placehoders in template
+	// Replace placeholders in template
 	char* username_comparison = NULL;
 	if (strstr(template, "%%") != NULL) {
-		// Username template contains placehoders -> replace
+		// Username template contains placeholders -> replace
 		if (!replacement_map
 			|| replacement_map_count == 0) return true;
 		username_comparison = oauth2plugin_strReplaceMap(
@@ -57,7 +57,7 @@ static bool oauth2plugin_isUsernameValid(
 		);
 		if (username_comparison == NULL) return false;
 	} else {
-		// Username template does not contain any placehoders
+		// Username template does not contain any placeholders
 		username_comparison = strdup(template);
 	}
 	
@@ -107,10 +107,10 @@ static bool oauth2plugin_setUsername(
 	// Validation
 	if (!client || !template) return false;
 	
-	// Replace placehoders in template
+	// Replace placeholders in template
 	char* username = NULL;
 	if (strstr(template, "%%") != NULL) {
-		// Username template contains placehoders -> replace
+		// Username template contains placeholders -> replace
 		if (!replacement_map
 			|| replacement_map_count == 0) return false;
 		username = oauth2plugin_strReplaceMap(
@@ -120,7 +120,7 @@ static bool oauth2plugin_setUsername(
 		);
 		if (username == NULL) return false;
 	} else {
-		// Username template does not contain any placehoders
+		// Username template does not contain any placeholders
 		username = strdup(template);
 	}
 
@@ -279,17 +279,6 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	const char* mqtt_username  = mosquitto_client_username(data->client);
 	const char* mqtt_password = data->password;
 
-	
-
-	struct { 
-		const char* placeholder; 
-		const char* oidc_key; 
-	} oauth2plugin_oidc_template_placeholders[] = {
-		{"%%oidc-username%%", "username"},
-		{"%%oidc-email%%", "email"},
-		{"%%oidc-sub%%", "sub"}
-	};
-
 	// Log
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Starting client authentication.");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - MQTT Client ID: %s", mqtt_client_id);
@@ -354,7 +343,7 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	}
 
 	// Extract JSON fields and create oauth2plugin_strReplacementMap
-	size_t replacement_map_count = sizeof(oauth2plugin_oidc_template_placeholders)/sizeof(oauth2plugin_oidc_template_placeholders[0]);
+	size_t replacement_map_count = oauth2plugin_oidc_template_placeholders_count;
 	struct oauth2plugin_strReplacementMap replacement_map[replacement_map_count] = {};
 	for (size_t i = 0; i < replacement_map_count; i++) {
 		replacement_map[i].needle = oauth2plugin_oidc_template_placeholders[i].placeholder;
