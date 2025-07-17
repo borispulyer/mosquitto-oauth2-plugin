@@ -429,11 +429,11 @@ static int oauth2plugin_getMosquittoAuthError(
 	const char* mqtt_client_id = mosquitto_client_id(client);
 	switch (error) {
 		case verification_error_DENY:
-			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. ACCESS DENIED (MQTT Client ID: %s).", mqtt_client_id ? mqtt_client_id : '<unknown>');
+			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. ACCESS DENIED (MQTT Client ID: %s).", mqtt_client_id ? mqtt_client_id : "<unknown>");
 			return MOSQ_ERR_AUTH; // Access denied
 			break;
 		case verification_error_DEFER:
-			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. DEFERRING AUTHENTICATION (MQTT Client ID: %s).", mqtt_client_id ? mqtt_client_id : '<unknown>');
+			mosquitto_log_printf(MOSQ_LOG_INFO, "[OAuth2 Plugin][I] Authentication failed. DEFERRING AUTHENTICATION (MQTT Client ID: %s).", mqtt_client_id ? mqtt_client_id : "<unknown>");
 			return MOSQ_ERR_PLUGIN_DEFER; // Deferring authentication
 			break;
 	}
