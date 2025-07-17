@@ -36,14 +36,14 @@
  * @brief Initialize the Mosquitto OAuth2 plugin.
  *
  * This function is called by the broker when the plugin is loaded.
- * It parses the configuration options, registers the authentication
+ * It parses the configuration options, registers the authentication 
  * callback and initializes the CURL library used for HTTP requests.
  *
- * @param identifier    Plugin identifier provided by Mosquitto.
- * @param userdata      Pointer that will receive plugin specific data and is passed back to mosquitto_plugin_cleanup().
- * @param options       Array with key/value pairs from the configuration.
- * @param option_count  Number of entries in the options array.
- * @return              MOSQ_ERR_SUCCESS on success or a suitable Mosquitto error code on failure.
+ * @param identifier	Plugin identifier provided by Mosquitto.
+ * @param userdata		Pointer that will receive plugin specific data and is passed back to mosquitto_plugin_cleanup().
+ * @param options 		Array with key/value pairs from the configuration.
+ * @param option_count	Number of entries in the options array.
+ * @return 				MOSQ_ERR_SUCCESS on success or a suitable Mosquitto error code on failure.
  */
 int mosquitto_plugin_init(
 	mosquitto_plugin_id_t* identifier,
@@ -51,7 +51,6 @@ int mosquitto_plugin_init(
 	struct mosquitto_opt* options,
 	int option_count
 ) {
-	
 	// Log
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D] Initializing Plugin...");
 	
@@ -98,7 +97,7 @@ int mosquitto_plugin_init(
 		return register_callback_error;
 	}
 
-	// Finish
+	// Log
 	mosquitto_log_printf(MOSQ_LOG_INFO,  "[OAuth2 Plugin][I] Plugin successfully initialized.");
 	mosquitto_log_printf(MOSQ_LOG_INFO,  "[OAuth2 Plugin][I]  - Introspection Endpoint: %s", _options->introspection_endpoint);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - TLS Verification: %s", _options->tls_verification ? "<Enabled>" : "<Disabled>");
@@ -113,7 +112,8 @@ int mosquitto_plugin_init(
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Replacement Error: <%s>", oauth2plugin_Options_verification_error_toString(_options->username_replacement_error));
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Token Verification Error: <%s>", oauth2plugin_Options_verification_error_toString(_options->token_verification_error));
 	
-	*userdata = _options; // Return to Mosquitto for mosquitto_plugin_cleanup
+	// Return
+	*userdata = _options; // Returned to Mosquitto for mosquitto_plugin_cleanup
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -124,9 +124,9 @@ int mosquitto_plugin_init(
  * Mosquitto asks the plugin to report which API versions it supports.
  * This implementation only supports API version 5.
  *
- * @param supported_version_count  Number of entries in @p supported_versions.
- * @param supported_versions       Array of API versions supported by the broker.
- * @return                         5 if version 5 is supported, otherwise -1 to indicate incompatibility.
+ * @param supported_version_count	Number of entries in @p supported_versions.
+ * @param supported_versions		Array of API versions supported by the broker.
+ * @return							5 if version 5 is supported, otherwise -1 to indicate incompatibility.
  */
 int mosquitto_plugin_version(
 	int supported_version_count,
@@ -148,10 +148,10 @@ int mosquitto_plugin_version(
  * Releases resources created during mosquitto_plugin_init() such as the
  * CURL library state and the options structure.
  *
- * @param userdata     Pointer to plugin specific data returned from mosquitto_plugin_init().
- * @param options      Unused parameter from the broker.
- * @param option_count Unused parameter from the broker.
- * @return             MOSQ_ERR_SUCCESS on success.
+ * @param userdata		Pointer to plugin specific data returned from mosquitto_plugin_init().
+ * @param options		Unused parameter from the broker.
+ * @param option_count	Unused parameter from the broker.
+ * @return				MOSQ_ERR_SUCCESS on success.
  */
 int mosquitto_plugin_cleanup(
 	void* userdata,

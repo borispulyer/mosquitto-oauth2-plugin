@@ -7,14 +7,6 @@
 #include "tools.h"
 
 
-/**
- * @brief Replace all occurrences of a substring with another string.
- *
- * @param haystack    Input string to operate on.
- * @param needle      Substring to search for.
- * @param replacement Replacement text for each occurrence of @p needle.
- * @return Newly allocated string with the replacements applied or NULL on error. The caller is responsible for freeing the returned string.
- */
 static char* oauth2plugin_strReplaceAll(
 	const char* haystack,
 	const char* needle,
@@ -59,18 +51,6 @@ static char* oauth2plugin_strReplaceAll(
 }
 
 
-/**
- * @brief Replace multiple substrings within a string using a replacement map.
- *
- * Each entry in @p map specifies a needle and the corresponding replacement
- * text. The replacements are performed sequentially in the order they appear in
- * the map.
- *
- * @param haystack Input string on which replacements are performed.
- * @param map      Array of replacement rules.
- * @param map_count Number of entries in @p map.
- * @return Newly allocated string with all replacements applied or NULL on failure. Caller is responsible for freeing the returned string.
- */
 char* oauth2plugin_strReplaceMap(
 	const char* haystack,
 	const struct oauth2plugin_strReplacementMap* map,
@@ -110,12 +90,6 @@ char* oauth2plugin_strReplaceMap(
 }
 
 
-/**
- * @brief Free memory allocated for each replacement in a map.
- *
- * @param map       Array of replacement entries to free.
- * @param map_count Number of entries in @p map.
- */
 void oauth2plugin_freeReplacementMap(
 	struct oauth2plugin_strReplacementMap* map,
 	size_t map_count

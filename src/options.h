@@ -20,10 +20,7 @@ enum oauth2plugin_Options_verification_error {
 	verification_error_DEFER
 }; 
 
-/**
- * Options structure holding all plugin_opt_* values after parsing mosquitto.conf.
- * Pointer members are heap‑allocated and must be released via oauth2plugin_freeOptions().
- */
+
 struct oauth2plugin_Options {	
 	mosquitto_plugin_id_t* 							id;										// Plugin ID from MQTT Broker.
 	char* 											introspection_endpoint;					// Introspection Endpoint URL.
@@ -40,29 +37,36 @@ struct oauth2plugin_Options {
  	enum oauth2plugin_Options_verification_error 	token_verification_error;				// "defer", "deny"
 };
 
+
 struct oauth2plugin_template_placeholder {
 	const char* placeholder;
 	const char* oidc_key;
 };
-
 extern const struct oauth2plugin_template_placeholder oauth2plugin_template_placeholders[];
 extern const size_t oauth2plugin_oidc_template_placeholders_count;
 
+
 /**
- * @brief Allocate and initialise a new options object.
+ * @brief Allocate and initialize an options structure.
  *
- * @return Pointer to the created structure or NULL on allocation failure.
+ * All fields of the returned structure are set to zero. The caller is
+ * responsible for releasing the object with oauth2plugin_freeOptions().
+ *
+ * @return Pointer to a new options structure or NULL if allocation fails.
  */
 struct oauth2plugin_Options* oauth2plugin_initOptions();
 
 
 /**
- * @brief Apply key/value pairs from mosquitto.conf to an options object.
+ * @brief Apply plugin configuration options to an options structure.
  *
- * @param options                 Target options object to fill.
- * @param mosquitto_options       Array of options supplied by the broker.
- * @param mosquitto_options_count Number of entries in @p mosquitto_options.
- * @return                        MOSQ_ERR_SUCCESS on success or a mosquitto error code.
+ * The key/value pairs supplied by the broker are parsed and copied into
+ * the given options structure.
+ *
+ * @param options					Target options object to fill.
+ * @param mosquitto_options			Array of options supplied by the broker.
+ * @param mosquitto_options_count	Number of entries in @p mosquitto_options.
+ * @return							MOSQ_ERR_SUCCESS on success, MOSQ_ERR_INVAL if mandatory options are missing or MOSQ_ERR_UNKNOWN on other failures.
  */
 int oauth2plugin_applyOptions(
 	struct oauth2plugin_Options* options,
@@ -72,9 +76,11 @@ int oauth2plugin_applyOptions(
 
 
 /**
- * @brief Free all heap allocations inside the options structure and the object itself.
+ * @brief Release all allocations inside an options object.
  *
- * @param options Options object created by oauth2plugin_initOptions().
+ * Frees any memory referenced by the options structure and finally the structure itself.
+ *
+ * @param options 					Pointer to the options object created by oauth2plugin_initOptions(). May be NULL.
  */
 void oauth2plugin_freeOptions(
 	struct oauth2plugin_Options* options
@@ -82,10 +88,12 @@ void oauth2plugin_freeOptions(
 
 
 /**
- * @brief Convert a verification_error enum value to its string representation.
+ * @brief Convert a verification_error enum value to a human readable string.
  *
- * @param value Enumeration value to convert.
- * @return      Constant string describing @p value.
+ * Primarily used for log output.
+ *
+ * @param value						Enumeration value to convert.
+ * @return							Constant string representation of @p value.
  */
 const char* oauth2plugin_Options_verification_error_toString(
 	enum oauth2plugin_Options_verification_error value
