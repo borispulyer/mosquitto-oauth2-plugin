@@ -40,13 +40,12 @@ struct oauth2plugin_Options {
  	enum oauth2plugin_Options_verification_error 	token_verification_error;				// "defer", "deny"
 };
 
-
-struct oauth2plugin_oidc_placeholder {
+struct oauth2plugin_template_placeholder {
 	const char* placeholder;
 	const char* oidc_key;
 };
 
-extern const struct oauth2plugin_oidc_placeholder oauth2plugin_oidc_template_placeholders[];
+extern const struct oauth2plugin_template_placeholder oauth2plugin_template_placeholders[];
 extern const size_t oauth2plugin_oidc_template_placeholders_count;
 
 /**

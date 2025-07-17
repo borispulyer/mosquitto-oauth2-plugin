@@ -7,15 +7,16 @@
 #include "options.h"
 
 
-const struct oauth2plugin_oidc_placeholder oauth2plugin_oidc_template_placeholders[] = {
+const struct oauth2plugin_template_placeholder oauth2plugin_template_placeholders[] = {
 	{"%%oidc-username%%", "username"},
 	{"%%oidc-email%%", "email"},
 	{"%%oidc-sub%%", "sub"},
 	{"%%zitadel-role%%", "urn:zitadel:iam:org:project:roles"}
 };
+
 const size_t oauth2plugin_oidc_template_placeholders_count =
-	sizeof(oauth2plugin_oidc_template_placeholders) /
-	sizeof(oauth2plugin_oidc_template_placeholders[0]);
+	sizeof(oauth2plugin_template_placeholders) /
+	sizeof(oauth2plugin_template_placeholders[0]);
 
 
 /**
@@ -167,7 +168,6 @@ void oauth2plugin_freeOptions(
 /**
  * Convert enum oauth2plugin_Options_verification_error to string for logging
  */
-
 const char* oauth2plugin_Options_verification_error_toString(
 	enum oauth2plugin_Options_verification_error value
 ) {

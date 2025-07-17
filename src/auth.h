@@ -27,35 +27,13 @@ struct oauth2plugin_CURLBuffer {
 	size_t size;
 };
 
-static int oauth2plugin_getMosquittoAuthError(
-	enum oauth2plugin_Options_verification_error error,
-	const struct mosquitto* client
+
+int oauth2plugin_callback_mosquittoBasicAuthentication(
+	int event, 
+	void* event_data, 
+	void* userdata
 );
 
-static bool oauth2plugin_isUsernameValid(
-	const char* username,
-	const char* template,
-	const struct oauth2plugin_strReplacementMap* replacement_map,
-	size_t replacement_map_count
-);
-
-static bool oauth2plugin_isTokenActive(
-	const cJSON* introspection_response
-);
-
-static bool oauth2plugin_setUsername(
-	struct mosquitto* client,
-	const char* template,
-	const struct oauth2plugin_strReplacementMap* replacement_map,
-	size_t replacement_map_count
-);
-
-static size_t oauth2plugin_callback_curlWriteFunction(
-	void* contents, 
-	size_t size, 
-	size_t nmemb, 
-	void* userp
-);
 
 static int oauth2plugin_callIntrospectionEndpoint(
 	const char* introspection_endpoint,
@@ -67,10 +45,39 @@ static int oauth2plugin_callIntrospectionEndpoint(
 	struct oauth2plugin_CURLBuffer* buffer
 );
 
-int oauth2plugin_callback_mosquittoBasicAuthentication(
-	int event, 
-	void* event_data, 
-	void* userdata
+
+static size_t oauth2plugin_callback_curlWriteFunction(
+	void* contents, 
+	size_t size, 
+	size_t nmemb, 
+	void* userp
+);
+
+
+static bool oauth2plugin_isUsernameValid(
+	const char* username,
+	const char* template,
+	const struct oauth2plugin_strReplacementMap* replacement_map,
+	size_t replacement_map_count
+);
+
+
+static bool oauth2plugin_isTokenActive(
+	const cJSON* introspection_response
+);
+
+
+static bool oauth2plugin_setUsername(
+	struct mosquitto* client,
+	const char* template,
+	const struct oauth2plugin_strReplacementMap* replacement_map,
+	size_t replacement_map_count
+);
+
+
+static int oauth2plugin_getMosquittoAuthError(
+	enum oauth2plugin_Options_verification_error error,
+	const struct mosquitto* client
 );
 
 #endif // OAUTH2PLUGIN_AUTH_H
