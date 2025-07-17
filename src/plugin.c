@@ -64,7 +64,7 @@ int mosquitto_plugin_init(
 	_options->tls_verification = true;
 	_options->timeout = 5;
 	_options->username_validation = false;
-	_options->username_validation_error = verification_error_DENY;
+	_options->username_validation_error = verification_error_DEFER;
 	_options->username_replacement = false;
 	_options->username_replacement_error = verification_error_DENY;
 	_options->token_verification_error = verification_error_DENY;
