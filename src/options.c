@@ -7,9 +7,18 @@
 #include "options.h"
 
 
-/**
- * Create an Options Object
- */
+const struct oauth2plugin_template_placeholder oauth2plugin_template_placeholders[] = {
+	{"%%oidc-username%%", "username"},
+	{"%%oidc-email%%", "email"},
+	{"%%oidc-sub%%", "sub"},
+	{"%%zitadel-role%%", "urn:zitadel:iam:org:project:roles"}
+};
+
+const size_t oauth2plugin_oidc_template_placeholders_count =
+	sizeof(oauth2plugin_template_placeholders) /
+	sizeof(oauth2plugin_template_placeholders[0]);
+
+
 struct oauth2plugin_Options* oauth2plugin_initOptions() {
 	struct oauth2plugin_Options* _options = calloc(1, sizeof(*_options));
 	if (!_options) return NULL;
@@ -17,9 +26,6 @@ struct oauth2plugin_Options* oauth2plugin_initOptions() {
 }
 
 
-/**
- * Apply plugin_opt_* key/value pairs from Mosquitto .conf-file to an existing Options instance.
- */
 int oauth2plugin_applyOptions(
 	struct oauth2plugin_Options* options,
 	const struct mosquitto_opt* mosquitto_options,
@@ -40,7 +46,21 @@ int oauth2plugin_applyOptions(
 			&& mosquitto_options[i].value
 		) {
 			options->introspection_endpoint = strdup(mosquitto_options[i].value);
-		} 
+		}
+		// tls_verification
+		else if (
+			strcmp(mosquitto_options[i].key, "tls_verification") == 0
+			&& mosquitto_options[i].value
+		) {
+			if (strcmp(mosquitto_options[i].value, "false") == 0) options->tls_verification = false;
+			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->tls_verification = true;
+		}
+		// timeout
+		else if (
+			strcmp(mosquitto_options[i].key, "timeout") == 0
+		) {
+			options->timeout = strtol(mosquitto_options[i].value, NULL, 10);
+		}
 		// client_id
 		else if (
 			strcmp(mosquitto_options[i].key, "client_id") == 0 
@@ -55,27 +75,59 @@ int oauth2plugin_applyOptions(
 		) {
 			options->client_secret = strdup(mosquitto_options[i].value);
 		}
-		// verify_tls_certificate
+		// username_validation
 		else if (
-			strcmp(mosquitto_options[i].key, "verify_tls_certificate") == 0
+			strcmp(mosquitto_options[i].key, "username_validation") == 0
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "false") == 0) options->verify_tls_certificate = false;
-			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->verify_tls_certificate = true;
+			if (strcmp(mosquitto_options[i].value, "false") == 0) options->username_validation = false;
+			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->username_validation = true;
 		}
-		// verify_username
+		// username_validation_template
 		else if (
-			strcmp(mosquitto_options[i].key, "verify_username") == 0
+			strcmp(mosquitto_options[i].key, "username_validation_template") == 0 
 			&& mosquitto_options[i].value
 		) {
-			if (strcmp(mosquitto_options[i].value, "false") == 0) options->verify_username = false;
-			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->verify_username = true;
+			options->username_validation_template = strdup(mosquitto_options[i].value);
 		}
-		// timeout
+		// username_validation_error
 		else if (
-			strcmp(mosquitto_options[i].key, "timeout") == 0
+			strcmp(mosquitto_options[i].key, "username_validation_error") == 0 
+			&& mosquitto_options[i].value
 		) {
-			options->timeout = strtol(mosquitto_options[i].value, NULL, 10);
+			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_validation_error = verification_error_DENY;
+			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_validation_error = verification_error_DEFER;
+		}
+		// username_replacement
+		else if (
+			strcmp(mosquitto_options[i].key, "username_replacement") == 0
+			&& mosquitto_options[i].value
+		) {
+			if (strcmp(mosquitto_options[i].value, "false") == 0) options->username_replacement = false;
+			else if (strcmp(mosquitto_options[i].value, "true") == 0) options->username_replacement = true;
+		}
+		// username_replacement_template
+		else if (
+			strcmp(mosquitto_options[i].key, "username_replacement_template") == 0 
+			&& mosquitto_options[i].value
+		) {
+			options->username_replacement_template = strdup(mosquitto_options[i].value);
+		}
+		// username_replacement_error
+		else if (
+			strcmp(mosquitto_options[i].key, "username_replacement_error") == 0 
+			&& mosquitto_options[i].value
+		) {
+			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->username_replacement_error = verification_error_DENY;
+			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->username_replacement_error = verification_error_DEFER;
+		}
+		// token_verification_error
+		else if (
+			strcmp(mosquitto_options[i].key, "token_verification_error") == 0 
+			&& mosquitto_options[i].value
+		) {
+			if (strcmp(mosquitto_options[i].value, "deny") == 0 ) options->token_verification_error = verification_error_DENY;
+			else if (strcmp(mosquitto_options[i].value, "defer") == 0 ) options->token_verification_error = verification_error_DEFER;
 		}
 	}
 
@@ -91,9 +143,6 @@ int oauth2plugin_applyOptions(
 }
 
 
-/**
- * Free Options Object
- */
 void oauth2plugin_freeOptions(
 	struct oauth2plugin_Options *options
 ) {
@@ -101,5 +150,18 @@ void oauth2plugin_freeOptions(
 	free(options->introspection_endpoint);
 	free(options->client_id);
 	free(options->client_secret);
+	free(options->username_validation_template);
+	free(options->username_replacement_template);
 	free(options);
+}
+
+
+const char* oauth2plugin_Options_verification_error_toString(
+	enum oauth2plugin_Options_verification_error value
+) {
+	switch (value) {
+		case verification_error_DENY: return "deny";
+		case verification_error_DEFER: return "defer";
+		default: return "unknown";
+	}
 }
