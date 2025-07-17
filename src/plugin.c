@@ -63,9 +63,9 @@ int mosquitto_plugin_init(
 	_options->id = identifier;
 	_options->tls_verification = true;
 	_options->timeout = 5;
-	_options->username_validation = username_validation_NONE;
+	_options->username_validation = false;
 	_options->username_validation_error = verification_error_DENY;
-	_options->username_replacement = username_validation_NONE;
+	_options->username_replacement = false;
 	_options->username_replacement_error = verification_error_DENY;
 	_options->token_verification_error = verification_error_DENY;
 
@@ -95,10 +95,10 @@ int mosquitto_plugin_init(
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Timeout: %ld seconds", _options->timeout);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client ID: %s", _options->client_id);
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - OAuth2 Client Secret: %zu chars", strlen(_options->client_secret));
-	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Verification: <%s>", oauth2plugin_Options_username_validation_toString(_options->username_validation));
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Verification: %s", _options->username_validation ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Verification Template: %s", _options->username_validation_template ? _options->username_validation_template : "<None>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Verification Error: <%s>", oauth2plugin_Options_verification_error_toString(_options->username_validation_error));
-	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Replacement: <%s>", oauth2plugin_Options_username_replacement_toString(_options->username_replacement));
+	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Replacement: %s", _options->username_replacement ? "<Enabled>" : "<Disabled>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Replacement Template: %s", _options->username_replacement_template ? _options->username_replacement_template : "<None>");
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Username Replacement Error: <%s>", oauth2plugin_Options_verification_error_toString(_options->username_replacement_error));
 	mosquitto_log_printf(MOSQ_LOG_DEBUG, "[OAuth2 Plugin][D]  - Token Verification Error: <%s>", oauth2plugin_Options_verification_error_toString(_options->token_verification_error));
