@@ -2,6 +2,19 @@
 
 This project provides an authentication plugin for the [Eclipse Mosquitto](https://mosquitto.org/) MQTT broker. Clients present an OAuth2 access token in the `password` field of the MQTT `CONNECT` packet. The plugin verifies the token using an OAuth2 *introspection* endpoint. If the token is valid (and optionally the reported username matches the MQTT username) the connection is accepted.
 
+Using a simple template syntax, the plugin can check whether the supplied MQTT username matches information returned by the OAuth2 provider. The same mechanism also allows replacing the MQTT username with a new value derived from the introspection response before Mosquitto performs any ACL checks. This makes it possible to map OAuth2 identities to local usernames used in ACL files or other authorisation backends.
+
+```
+MQTT Client            Mosquitto Broker             OAuth2 Provider
+     |                        |                            |
+ 1.  |--- CONNECT (token) --->|                            |
+ 2.  |                        |--- introspection request -->|
+ 3.  |                        |<-- token information -------|
+ 4.  |<-- CONNACK/ERROR ------|                            |
+```
+
+The diagram above illustrates the authentication flow. The client sends a `CONNECT` packet containing the access token, the plugin validates the token, optionally validates or rewrites the username and finally instructs Mosquitto to accept or deny the connection.
+
 **Note:** The plugin only handles authentication. ACL checks are **not** implemented and can be configured via Mosquitto's `acl_file` mechanism.
 
 ## mosquitto.conf options
@@ -22,12 +35,12 @@ The plugin is configured through `plugin_opt_*` parameters in `mosquitto.conf`.
 | `username_replacement_error` | Behaviour when username replacement fails: `deny` (default) or `defer` |
 | `token_verification_error` | Behaviour when token verification fails: `deny` (default) or `defer` |
 
-The following placeholders can be used inside the username templates:
+The following placeholders can be used inside the username templates. They are replaced with values from the JSON document returned by the introspection endpoint:
 
-- `%%oidc-username%%`
-- `%%oidc-email%%`
-- `%%oidc-sub%%`
-- `%%zitadel-role%%`
+- `%%oidc-username%%` – replaced with the value of the `username` claim
+- `%%oidc-email%%` – replaced with the `email` claim
+- `%%oidc-sub%%` – replaced with the `sub` (subject) claim
+- `%%zitadel-role%%` – replaced with the first role name contained in the `urn:zitadel:iam:org:project:roles` claim. This is a ZITADEL specific extension and only the first role is used if multiple roles are present
 
 ### Example configuration
 ```conf
