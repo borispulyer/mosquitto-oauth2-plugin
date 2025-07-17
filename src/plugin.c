@@ -9,14 +9,10 @@
  *   – Sends the token to an external HTTP authentication server.
  *   – Grants or denies the connection depending on the HTTP response code.
  *
- * mosquitto.conf configuration (example):
- *   plugin /etc/mosquitto/plugins/mosquitto_token_auth_plugin.so
- *   plugin_opt_url https://auth.example.com/validate
- *   plugin_opt_timeout 3          # curl timeout in seconds (optional)
- *
  * Required packages:
  *   – libmosquitto-dev / mosquitto-dev (broker headers & API)
  *   – libcurl4-openssl-dev (HTTP requests)
+ *   - cjson-dev (JSON parsing)
  */
 
 
