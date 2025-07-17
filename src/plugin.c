@@ -40,18 +40,16 @@
  * callback and initializes the CURL library used for HTTP requests.
  *
  * @param identifier    Plugin identifier provided by Mosquitto.
- * @param userdata      Pointer that will receive plugin specific data and is
- *                      passed back to mosquitto_plugin_cleanup().
+ * @param userdata      Pointer that will receive plugin specific data and is passed back to mosquitto_plugin_cleanup().
  * @param options       Array with key/value pairs from the configuration.
  * @param option_count  Number of entries in the options array.
- * @return              MOSQ_ERR_SUCCESS on success or a suitable Mosquitto
- *                      error code on failure.
+ * @return              MOSQ_ERR_SUCCESS on success or a suitable Mosquitto error code on failure.
  */
 int mosquitto_plugin_init(
-        mosquitto_plugin_id_t* identifier,
-        void** userdata,
-        struct mosquitto_opt* options,
-        int option_count
+	mosquitto_plugin_id_t* identifier,
+	void** userdata,
+	struct mosquitto_opt* options,
+	int option_count
 ) {
 	
 	// Log
@@ -127,14 +125,12 @@ int mosquitto_plugin_init(
  * This implementation only supports API version 5.
  *
  * @param supported_version_count  Number of entries in @p supported_versions.
- * @param supported_versions       Array of API versions supported by the
- *                                 broker.
- * @return                         5 if version 5 is supported, otherwise -1 to
- *                                 indicate incompatibility.
+ * @param supported_versions       Array of API versions supported by the broker.
+ * @return                         5 if version 5 is supported, otherwise -1 to indicate incompatibility.
  */
 int mosquitto_plugin_version(
-        int supported_version_count,
-        const int* supported_versions
+	int supported_version_count,
+	const int* supported_versions
 ) {
 	// Only Version 5 is supported
 	for (int i = 0; i < supported_version_count; i++) {
@@ -152,16 +148,15 @@ int mosquitto_plugin_version(
  * Releases resources created during mosquitto_plugin_init() such as the
  * CURL library state and the options structure.
  *
- * @param userdata     Pointer to plugin specific data returned from
- *                     mosquitto_plugin_init().
+ * @param userdata     Pointer to plugin specific data returned from mosquitto_plugin_init().
  * @param options      Unused parameter from the broker.
  * @param option_count Unused parameter from the broker.
  * @return             MOSQ_ERR_SUCCESS on success.
  */
 int mosquitto_plugin_cleanup(
-        void* userdata,
-        struct mosquitto_opt* options,
-        int option_count
+	void* userdata,
+	struct mosquitto_opt* options,
+	int option_count
 ) {
 	// Unused Parameters
 	(void)options; (void)option_count;

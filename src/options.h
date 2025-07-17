@@ -65,9 +65,9 @@ struct oauth2plugin_Options* oauth2plugin_initOptions();
  * @return                        MOSQ_ERR_SUCCESS on success or a mosquitto error code.
  */
 int oauth2plugin_applyOptions(
-        struct oauth2plugin_Options* options,
-        const struct mosquitto_opt* mosquitto_options,
-        const int mosquitto_options_count
+	struct oauth2plugin_Options* options,
+	const struct mosquitto_opt* mosquitto_options,
+	const int mosquitto_options_count
 );
 
 
@@ -77,7 +77,7 @@ int oauth2plugin_applyOptions(
  * @param options Options object created by oauth2plugin_initOptions().
  */
 void oauth2plugin_freeOptions(
-        struct oauth2plugin_Options* options
+	struct oauth2plugin_Options* options
 );
 
 
@@ -88,7 +88,7 @@ void oauth2plugin_freeOptions(
  * @return      Constant string describing @p value.
  */
 const char* oauth2plugin_Options_verification_error_toString(
-        enum oauth2plugin_Options_verification_error value
+	enum oauth2plugin_Options_verification_error value
 );
 
 #endif // OAUTH2PLUGIN_OPTIONS_H
