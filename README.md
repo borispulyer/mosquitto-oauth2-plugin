@@ -48,7 +48,7 @@ The following placeholders can be used inside the username templates. They are r
 - `%%oidc-username%%` – replaced with the value of the `username` claim
 - `%%oidc-email%%` – replaced with the `email` claim
 - `%%oidc-sub%%` – replaced with the `sub` (subject) claim
-- `%%zitadel-role%%` – replaced with the first role name contained in the `urn:zitadel:iam:org:project:roles` claim. This is a ZITADEL specific extension and only the first role is used if multiple roles are present
+- `%%zitadel-role%%` – replaced with the (first) [role name](https://zitadel.com/docs/guides/integrate/retrieve-user-roles) contained in the `urn:zitadel:iam:org:project:roles` claim. This is a [ZITADEL](https://zitadel.com/) specific extension and only the first role is used if multiple roles are present
 
 
 ### Example configuration
@@ -160,4 +160,4 @@ The plugin shared object will be available inside the container at `/mosquitto/p
 
 What is missing yet?
 
-- Caching of OAuth2 introspection responses.
+- Cache OAuth2 introspection responses.
