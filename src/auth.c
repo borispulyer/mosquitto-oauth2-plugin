@@ -348,12 +348,29 @@ int oauth2plugin_callback_mosquittoBasicAuthentication(
 	for (size_t i = 0; i < replacement_map_count; i++) {
 		replacement_map[i].needle = oauth2plugin_oidc_template_placeholders[i].placeholder;
 		cJSON* item = cJSON_GetObjectItemCaseSensitive(cjson, oauth2plugin_oidc_template_placeholders[i].oidc_key);
-		if (cJSON_IsString(item)) {
+		if (
+			cJSON_IsString(item)
+		) {
 			replacement_map[i].replacement = strdup(item->valuestring);
+		} else if (
+			cJSON_IsNumber(item)
+		) {
+			char num_buf[32];
+			snprintf(num_buf, sizeof(num_buf), "%d", item->valueint);
+			replacement_map[i].replacement = strdup(num_buf);
+		} else if (
+			cJSON_IsBool(item)
+		) {
+			replacement_map[i].replacement = strdup(cJSON_IsTrue(item) ? "true" : "false");
+		} else if (
+			cJSON_IsObject(item) && item->child && item->child->string
+		) {
+			replacement_map[i].replacement = strdup(item->child->string);
 		} else {
 			replacement_map[i].replacement = NULL;
 		}
 	}
+
 	
 	////
 	// Step 3: Post OAuth2 validation

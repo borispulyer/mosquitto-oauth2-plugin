@@ -10,7 +10,8 @@
 const struct oauth2plugin_oidc_placeholder oauth2plugin_oidc_template_placeholders[] = {
 	{"%%oidc-username%%", "username"},
 	{"%%oidc-email%%", "email"},
-	{"%%oidc-sub%%", "sub"}
+	{"%%oidc-sub%%", "sub"},
+	{"%%zitadel-role%%", "urn:zitadel:iam:org:project:roles"}
 };
 const size_t oauth2plugin_oidc_template_placeholders_count =
 	sizeof(oauth2plugin_oidc_template_placeholders) /
