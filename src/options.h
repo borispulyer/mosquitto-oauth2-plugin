@@ -49,31 +49,46 @@ extern const struct oauth2plugin_template_placeholder oauth2plugin_template_plac
 extern const size_t oauth2plugin_oidc_template_placeholders_count;
 
 /**
- * Create an Options Object.
+ * @brief Allocate and initialise a new options object.
+ *
+ * @return Pointer to the created structure or NULL on allocation failure.
  */
 struct oauth2plugin_Options* oauth2plugin_initOptions();
 
 
 /**
- * Apply plugin_opt_* key/value pairs from Mosquitto .conf-file to an existing Options instance.
+ * @brief Apply key/value pairs from mosquitto.conf to an options object.
+ *
+ * @param options                 Target options object to fill.
+ * @param mosquitto_options       Array of options supplied by the broker.
+ * @param mosquitto_options_count Number of entries in @p mosquitto_options.
+ * @return                        MOSQ_ERR_SUCCESS on success or a mosquitto error code.
  */
 int oauth2plugin_applyOptions(
-	struct oauth2plugin_Options* options,
-	const struct mosquitto_opt* mosquitto_options,
-	const int mosquitto_options_count
+        struct oauth2plugin_Options* options,
+        const struct mosquitto_opt* mosquitto_options,
+        const int mosquitto_options_count
 );
 
 
 /**
- * Free all heap allocations inside struct Options and the object itself.
+ * @brief Free all heap allocations inside the options structure and the object itself.
+ *
+ * @param options Options object created by oauth2plugin_initOptions().
  */
 void oauth2plugin_freeOptions(
-	struct oauth2plugin_Options* options
+        struct oauth2plugin_Options* options
 );
 
 
+/**
+ * @brief Convert a verification_error enum value to its string representation.
+ *
+ * @param value Enumeration value to convert.
+ * @return      Constant string describing @p value.
+ */
 const char* oauth2plugin_Options_verification_error_toString(
-	enum oauth2plugin_Options_verification_error value
+        enum oauth2plugin_Options_verification_error value
 );
 
 #endif // OAUTH2PLUGIN_OPTIONS_H

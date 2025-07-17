@@ -20,22 +20,37 @@ const size_t oauth2plugin_oidc_template_placeholders_count =
 
 
 /**
- * Create an Options Object
+ * @brief Allocate and initialize an options structure.
+ *
+ * All fields of the returned structure are set to zero. The caller is
+ * responsible for releasing the object with oauth2plugin_freeOptions().
+ *
+ * @return Pointer to a new options structure or NULL if allocation fails.
  */
 struct oauth2plugin_Options* oauth2plugin_initOptions() {
-	struct oauth2plugin_Options* _options = calloc(1, sizeof(*_options));
-	if (!_options) return NULL;
-	return _options;
+        struct oauth2plugin_Options* _options = calloc(1, sizeof(*_options));
+        if (!_options) return NULL;
+        return _options;
 }
 
 
 /**
- * Apply plugin_opt_* key/value pairs from Mosquitto .conf-file to an existing Options instance.
+ * @brief Apply plugin configuration options to an options structure.
+ *
+ * The key/value pairs supplied by the broker are parsed and copied into
+ * the given options structure.
+ *
+ * @param options                 Target options object to fill.
+ * @param mosquitto_options       Array of key/value option pairs.
+ * @param mosquitto_options_count Number of entries in @p mosquitto_options.
+ * @return                        MOSQ_ERR_SUCCESS on success, MOSQ_ERR_INVAL
+ *                                if mandatory options are missing or
+ *                                MOSQ_ERR_UNKNOWN on other failures.
  */
 int oauth2plugin_applyOptions(
-	struct oauth2plugin_Options* options,
-	const struct mosquitto_opt* mosquitto_options,
-	const int mosquitto_options_count
+        struct oauth2plugin_Options* options,
+        const struct mosquitto_opt* mosquitto_options,
+        const int mosquitto_options_count
 ) {
 	// Validate
 	if (
@@ -150,10 +165,16 @@ int oauth2plugin_applyOptions(
 
 
 /**
- * Free Options Object
+ * @brief Release all allocations inside an options object.
+ *
+ * Frees any memory referenced by the options structure and finally the
+ * structure itself.
+ *
+ * @param options Pointer to the options object created by
+ *                oauth2plugin_initOptions(). May be NULL.
  */
 void oauth2plugin_freeOptions(
-	struct oauth2plugin_Options *options
+        struct oauth2plugin_Options *options
 ) {
 	if(!options) return;
 	free(options->introspection_endpoint);
@@ -166,10 +187,15 @@ void oauth2plugin_freeOptions(
 
 
 /**
- * Convert enum oauth2plugin_Options_verification_error to string for logging
+ * @brief Convert a verification_error enum value to a human readable string.
+ *
+ * Primarily used for log output.
+ *
+ * @param value Enumeration value to convert.
+ * @return      Constant string representation of @p value.
  */
 const char* oauth2plugin_Options_verification_error_toString(
-	enum oauth2plugin_Options_verification_error value
+        enum oauth2plugin_Options_verification_error value
 ) {
 	switch (value) {
 		case verification_error_DENY: return "deny";
