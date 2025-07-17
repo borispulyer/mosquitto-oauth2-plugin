@@ -55,11 +55,11 @@ static bool oauth2plugin_isUsernameValid(
 			replacement_map,
 			replacement_map_count
 		);
-		if (username_comparison == NULL) return false;
 	} else {
 		// Username template does not contain any placeholders
 		username_comparison = strdup(template);
 	}
+	if (username_comparison == NULL) return false;
 	
 	// Compare username with template
 	if (strcmp(username, username_comparison) == 0) {
@@ -118,11 +118,11 @@ static bool oauth2plugin_setUsername(
 			replacement_map,
 			replacement_map_count
 		);
-		if (username == NULL) return false;
 	} else {
 		// Username template does not contain any placeholders
 		username = strdup(template);
 	}
+	if (username == NULL) return false;
 
 	// Replace username
 	if (username) {
@@ -174,7 +174,8 @@ static int oauth2plugin_callIntrospectionEndpoint(
 ) {
 	// Validation
 	if (
-		!client_id
+		!introspection_endpoint
+		|| !client_id
 		|| !client_secret
 		|| !token
 	) return MOSQ_ERR_UNKNOWN;
@@ -199,21 +200,28 @@ static int oauth2plugin_callIntrospectionEndpoint(
 		curl_easy_cleanup(curl);
 		return MOSQ_ERR_UNKNOWN;
 	}
-	char* postdata_token = (char*) malloc(strlen(postadata_token_parameter) + strlen(postdata_token_value) + 2); // +1 for '=' and +1 for null terminator
+
+	size_t postdata_token_len = strlen(postadata_token_parameter) + strlen(postdata_token_value) + 2; // +1 for '=' and +1 for null terminator
+	char* postdata_token = (char*) malloc(postdata_token_len);
 	if (!postdata_token) {
 		curl_free(postdata_token_value);
 		curl_easy_cleanup(curl);
 		return MOSQ_ERR_NOMEM;
 	}
-	sprintf(postdata_token, "%s=%s", postadata_token_parameter, postdata_token_value);
+	snprintf(postdata_token, postdata_token_len, "%s=%s", postadata_token_parameter, postdata_token_value);
 	curl_free(postdata_token_value);
-	
+
+	// Create heder
+	struct curl_slist* headers = NULL;
+	headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
+
 	// Setup CURL
 	curl_easy_setopt(curl, CURLOPT_URL, introspection_endpoint);
 	curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 	curl_easy_setopt(curl, CURLOPT_USERNAME, esc_client_id);
 	curl_easy_setopt(curl, CURLOPT_PASSWORD, esc_client_secret);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postdata_token);
+	if (headers) curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, oauth2plugin_callback_curlWriteFunction);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, buffer);
 	if (!tls_verification) {
@@ -235,6 +243,7 @@ static int oauth2plugin_callIntrospectionEndpoint(
 	CURLcode curl_code = curl_easy_perform(curl);
 	curl_free(esc_client_id);
 	curl_free(esc_client_secret);
+	if (headers) curl_slist_free_all(headers);
 	free(postdata_token);
 	if (curl_code != CURLE_OK) {
 		mosquitto_log_printf(MOSQ_LOG_WARNING, "[OAuth2 Plugin][W] Failed to call introspection endpoint (Error: %s).", curl_easy_strerror(curl_code));

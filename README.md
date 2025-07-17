@@ -154,3 +154,10 @@ docker compose up --build
 ```
 
 The plugin shared object will be available inside the container at `/mosquitto/plugins/oauth2-plugin.so`.
+
+
+## To Do
+
+What is missing yet?
+
+- Caching of OAuth2 introspection responses.
